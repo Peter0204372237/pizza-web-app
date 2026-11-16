@@ -34,9 +34,10 @@
         <section class="order-confirmation" id="checkout-confirmation" aria-labelledby="confirmation-title" hidden>
             <p class="cart-eyebrow">ORDER RECEIVED</p>
             <h2 id="confirmation-title">Thanks for your order!</h2>
-            <p>Your order has been saved in this browser. This demo does not process a payment or send your order to a restaurant.</p>
+            <p>Your order has been received. Keep your order reference and phone number to track its status.</p>
             <dl>
                 <div><dt>Order reference</dt><dd id="confirmation-order-id"></dd></div>
+                <div id="confirmation-discount-row" hidden><dt>Offer applied</dt><dd id="confirmation-discount"></dd></div>
                 <div><dt>Total due on delivery</dt><dd id="confirmation-total"></dd></div>
             </dl>
             <a class="cart-primary" href="menu.html">Back to the menu</a>
@@ -64,14 +65,16 @@
                 <section class="checkout-section payment-section" aria-labelledby="payment-title">
                     <h2 id="payment-title">Payment</h2>
                     <p class="payment-choice">Cash on delivery <span>Pay when your order arrives</span></p>
-                    <p class="checkout-disclaimer">Demo checkout only: no online payment is taken and this order is saved only in this browser.</p>
+                    <p class="checkout-disclaimer">Pay in cash when your order arrives. No online payment is taken.</p>
                 </section>
                 <button class="cart-primary place-order" type="submit">Place order</button>
             </form>
             <aside class="cart-summary checkout-summary" aria-labelledby="checkout-summary-title">
                 <h2 id="checkout-summary-title">Your order</h2>
                 <ul id="checkout-summary"></ul>
-                <p class="checkout-total"><span>Total</span><strong id="checkout-subtotal">GH₵0</strong></p>
+                <ul id="checkout-discounts" hidden></ul>
+                <p class="checkout-total"><span>Subtotal</span><strong id="checkout-subtotal">Calculating…</strong></p>
+                <p class="checkout-total checkout-final-total"><span>Total</span><strong id="checkout-total-amount">Calculating…</strong></p>
                 <a class="cart-secondary" href="cart.html">Back to cart</a>
             </aside>
         </div>

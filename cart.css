@@ -298,10 +298,18 @@
     white-space: nowrap;
 }
 
+#checkout-discounts li strong {
+    color: var(--brand-dark);
+}
+
 .checkout-total {
     padding-top: 8px;
     font-size: 17px;
     font-weight: 700;
+}
+
+.checkout-final-total {
+    border-top: 1px solid var(--border);
 }
 
 .order-confirmation dl {

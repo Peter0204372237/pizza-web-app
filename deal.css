@@ -59,6 +59,15 @@
 }
 
 /* Featured deal */
+.deal-feature[hidden],
+#more-deals-section[hidden],
+#deals-message[hidden],
+.price-old[hidden],
+.deal-label[hidden],
+.deal-chip[hidden] {
+    display: none !important;
+}
+
 .deal-feature {
     display: grid;
     grid-template-columns: 1.1fr 1fr;
@@ -275,4 +284,3 @@
         justify-content: center;
     }
 }
-

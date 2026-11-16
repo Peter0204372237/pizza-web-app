@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Track your Pizza Haven order from the kitchen to your door.">
-    <title>Pizza Haven - Track Orders</title>
+    <meta name="description" content="Track your PizzaSlice order from the kitchen to your door.">
+    <title>PizzaSlice — Track Orders</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="pizza.css">
@@ -43,81 +43,38 @@
             <section class="track-form-card" aria-labelledby="lookup-title">
                 <h2 id="lookup-title">Find your order</h2>
 
-                <form action="trackorders.html" method="get">
+                <form id="track-form">
                     <div class="form-group">
                         <label for="order-id">Order number</label>
-                        <input type="text" id="order-id" name="order" placeholder="e.g. PH-1042" required>
+                        <input type="text" id="order-id" name="order" placeholder="e.g. PS-A1B2C3D4E5F6" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="phone">Phone number</label>
-                        <input type="tel" id="phone" name="phone" placeholder="e.g. 024 000 0000" required>
+                        <label for="track-phone">Phone number</label>
+                        <input type="tel" id="track-phone" name="phone" placeholder="e.g. 024 000 0000" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary track-submit">Track order</button>
                 </form>
 
+                <p class="form-note" id="track-message" role="status" aria-live="polite"></p>
+                <p class="form-note">After finding your order, its status refreshes automatically every 15 seconds.</p>
                 <p class="form-note">Your order number is on the confirmation you received when you ordered.</p>
             </section>
 
-            <!-- Example result -->
-            <section class="track-result" aria-labelledby="result-title">
+            <section class="track-result" id="track-result" aria-labelledby="result-title" hidden>
                 <div class="result-head">
                     <div>
-                        <span class="example-tag">Example</span>  
                         <h2 id="result-title">Order PH-1042</h2>
                     </div>
-                    <div class="eta">
-                        <span class="eta-label">Estimated arrival</span>
-                        <span class="eta-time">25 to 35 min</span>
-                    </div>
+                    <p class="eta" id="order-status"></p>
                 </div>
 
-                <ol class="timeline">
-                    <li class="done">
-                        <span class="dot" aria-hidden="true"></span>
-                        <div>
-                            <h3>Order received</h3>
-                            <p>We have your order and payment details.</p>
-                        </div>
-                    </li>
-                    <li class="done">
-                        <span class="dot" aria-hidden="true"></span>
-                        <div>
-                            <h3>Preparing</h3>
-                            <p>The dough is stretched and the toppings are going on.</p>
-                        </div>
-                    </li>
-                    <li class="current" aria-current="step">
-                        <span class="dot" aria-hidden="true"></span>
-                        <div>
-                            <h3>In the oven</h3>
-                            <p>Your pizza is baking.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="dot" aria-hidden="true"></span>
-                        <div>
-                            <h3>Out for delivery</h3>
-                            <p>A rider is on the way to you.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="dot" aria-hidden="true"></span>
-                        <div>
-                            <h3>Delivered</h3>
-                            <p>Enjoy your meal.</p>
-                        </div>
-                    </li>
-                </ol>
+                <ol class="timeline" id="order-timeline"></ol>
 
                 <div class="order-summary">
                     <h3>Order summary</h3>
-                    <ul>
-                        <li><span>1 x Meat Lovers</span><span>GH₵20</span></li>
-                        <li><span>1 x Four Cheese</span><span>GH₵20</span></li>
-                        <li class="total"><span>Total</span><span>GH₵40</span></li>
-                    </ul>
+                    <ul id="tracked-order-items"></ul>
                 </div>
             </section>
         </div>
@@ -167,5 +124,6 @@
         </div>
         <p class="footer-bottom">&copy; 2026 PizzaSlice. All rights reserved.</p>
     </footer>
+    <script src="js/trackorders.js" defer></script>
 </body>
 </html>

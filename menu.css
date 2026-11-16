@@ -98,12 +98,6 @@
     color: var(--tomato);
 }
 
-.menu-wrap > input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
 .menu-filters {
     display: flex;
     flex-wrap: wrap;
@@ -112,57 +106,40 @@
     margin-bottom: 28px;
 }
 
-.menu-filters label {
+.menu-filters button {
     padding: 8px 16px;
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     background: var(--surface);
     color: var(--ink);
+    font: inherit;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color var(--ease), border-color var(--ease), color var(--ease);
 }
 
-.menu-filters label:hover {
+.menu-filters button:hover {
     border-color: var(--brand-dark);
     color: var(--brand-dark);
 }
 
-#cat-all:checked ~ .menu-filters label[for="cat-all"],
-#cat-classic:checked ~ .menu-filters label[for="cat-classic"],
-#cat-gourmet:checked ~ .menu-filters label[for="cat-gourmet"],
-#cat-deep:checked ~ .menu-filters label[for="cat-deep"],
-#cat-meat:checked ~ .menu-filters label[for="cat-meat"],
-#cat-veggie:checked ~ .menu-filters label[for="cat-veggie"] {
+.menu-filters button[aria-pressed="true"] {
     background: var(--brand-dark);
     border-color: var(--brand-dark);
     color: #fff;
 }
 
-#cat-all:focus-visible ~ .menu-filters label[for="cat-all"],
-#cat-classic:focus-visible ~ .menu-filters label[for="cat-classic"],
-#cat-gourmet:focus-visible ~ .menu-filters label[for="cat-gourmet"],
-#cat-deep:focus-visible ~ .menu-filters label[for="cat-deep"],
-#cat-meat:focus-visible ~ .menu-filters label[for="cat-meat"],
-#cat-veggie:focus-visible ~ .menu-filters label[for="cat-veggie"] {
+.menu-filters button:focus-visible {
     outline: 3px solid var(--brand-dark);
     outline-offset: 3px;
-}
-
-#cat-classic:checked ~ .menu-grid .menu-card:not([data-cat="classic"]),
-#cat-gourmet:checked ~ .menu-grid .menu-card:not([data-cat="gourmet"]),
-#cat-deep:checked ~ .menu-grid .menu-card:not([data-cat="deep"]),
-#cat-meat:checked ~ .menu-grid .menu-card:not([data-cat="meat"]),
-#cat-veggie:checked ~ .menu-grid .menu-card:not([data-cat="veggie"]) {
-    display: none;
 }
 
 /* Cards */
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
+    gap: 18px;
 }
 
 .menu-card {
@@ -176,6 +153,16 @@
     box-shadow: 0 6px 20px rgba(80, 42, 27, 0.055);
     scroll-margin-top: 90px; /* keeps the card clear of the sticky navbar when jumped to */
     transition: transform var(--ease), box-shadow var(--ease);
+}
+
+.menu-card[hidden] {
+    display: none;
+}
+
+.menu-card-anchor {
+    position: absolute;
+    top: 0;
+    scroll-margin-top: 90px;
 }
 
 .menu-card-link {
@@ -197,7 +184,7 @@
 
 .menu-media {
     position: relative;
-    aspect-ratio: 1.28;
+    aspect-ratio: 1.85;
     background: #e5e7eb;
     overflow: hidden;
 }
@@ -277,20 +264,20 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding: 18px 18px 16px;
+    padding: 11px 14px 10px;
 }
 
 .menu-body h3 {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 20px;
+    font-size: 18px;
     color: var(--ink);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .menu-body p {
     flex-grow: 1;
-    margin-bottom: 16px;
-    font-size: 14px;
+    margin-bottom: 7px;
+    font-size: 13px;
     color: var(--muted);
 }
 
@@ -303,7 +290,7 @@
 }
 
 .menu-price {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--brand-dark);
 }
@@ -323,13 +310,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 9px 16px;
+    padding: 7px 12px;
     border: none;
     border-radius: var(--radius-pill);
     background: var(--brand-dark);
     color: #fff;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color var(--ease);
@@ -377,7 +364,7 @@
 @media (max-width: 900px) {
     .menu-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
+        gap: 14px;
     }
 }
 
@@ -411,7 +398,7 @@
         scrollbar-width: thin;
     }
 
-    .menu-filters label {
+    .menu-filters button {
         flex-shrink: 0;
     }
 
@@ -420,6 +407,6 @@
     }
 
     .menu-media {
-        aspect-ratio: 1.35;
+        aspect-ratio: 1.9;
     }
 }
