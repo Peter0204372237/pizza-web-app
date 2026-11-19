@@ -62,7 +62,13 @@ Open `http://127.0.0.1:8000/` to use the storefront. Use `http://127.0.0.1:8000/
 - `POST /api/orders/` — create a cash-on-delivery order from delivery details and cart items.
 - `POST /api/orders/lookup/` — look up an order by its reference and the phone number used at checkout. The tracking page refreshes its status every 15 seconds until it is delivered or cancelled.
 
-The order tracker only returns an order when both the reference and phone number match. Online payment and customer accounts are not included. The built-in frontend file serving is intended for local development with Django's development server, not production deployment.
+The order tracker only returns an order when both the reference and phone number match. Online payment and customer accounts are not included.
+
+## Static files
+
+The storefront's CSS, images, video, and JavaScript remain in the project root and `js/` directory to preserve the existing layout. `ordering.staticfiles.ProjectRootAssetsFinder` exposes only those asset types to Django's staticfiles system; do not point `STATICFILES_DIRS` at the project root, which could collect source code or local data. The frontend continues to support legacy root-level asset URLs, while pages and API image URLs use `/static/`.
+
+`STATIC_ROOT` is configured as `staticfiles/`. Vercel's Django integration runs `collectstatic` and serves collected files from its CDN, including Django admin assets. The same finder works with Django's local development server. WhiteNoise is not added because Vercel's static CDN handles production delivery.
 
 ## Production settings
 

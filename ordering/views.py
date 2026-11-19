@@ -1,16 +1,19 @@
 import json
+import mimetypes
 import re
 from decimal import Decimal
 from pathlib import Path
+from urllib.parse import unquote
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.db import transaction
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-from django.views.static import serve
 
 from .models import Category, Deal, Order, OrderItem, Pizza
 
@@ -45,6 +48,16 @@ def error_response(message, status=400):
     return JsonResponse({"error": message}, status=status)
 
 
+def static_asset_url(path):
+    if path.startswith(("http://", "https://")):
+        return path
+
+    path = unquote(path).lstrip("/")
+    if path.startswith("static/"):
+        path = path[len("static/"):]
+    return static(path)
+
+
 def serialize_pizza(pizza):
     return {
         "slug": pizza.slug,
@@ -53,7 +66,7 @@ def serialize_pizza(pizza):
         "category_slug": pizza.category.slug,
         "description": pizza.description,
         "ingredients": pizza.ingredients,
-        "image": pizza.image,
+        "image": static_asset_url(pizza.image),
         "prices": {
             size: str(pizza.price_for_size(size))
             for size in ("S", "M", "L", "XL")
@@ -66,7 +79,7 @@ def serialize_deal(deal):
         "title": deal.title,
         "badge": deal.badge,
         "description": deal.description,
-        "image": deal.image,
+        "image": static_asset_url(deal.image),
         "image_alt": deal.image_alt,
         "offer_text": (
             f"GH₵{deal.promotion_price}"
@@ -486,11 +499,21 @@ def frontend_page(request, page_name):
 
 
 def frontend_asset(request, asset_path):
+    asset_path = unquote(asset_path).replace("\\", "/")
     parts = Path(asset_path).parts
-    if any(part.startswith(".") or part == ".." for part in parts):
+    if Path(asset_path).is_absolute() or any(
+        part.startswith(".") or part == ".." for part in parts
+    ):
         raise Http404
-    return serve(
-        request,
-        asset_path,
-        document_root=settings.BASE_DIR,
+    if asset_path.startswith("static/"):
+        asset_path = asset_path[len("static/"):]
+
+    asset_file = finders.find(asset_path)
+    if asset_file is None:
+        raise Http404
+
+    content_type, _encoding = mimetypes.guess_type(asset_file)
+    return FileResponse(
+        open(asset_file, "rb"),
+        content_type=content_type or "application/octet-stream",
     )

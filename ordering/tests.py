@@ -5,19 +5,34 @@ from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
+from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from .models import Category, Deal, Order, Pizza
 
 
 class FrontendAssetTests(SimpleTestCase):
+    def test_project_assets_are_found_and_served_under_static_url(self):
+        self.assertIsNotNone(finders.find("pizza.css"))
+        self.assertIsNotNone(finders.find("js/cart.js"))
+
+        response = self.client.get("/static/pizza.css")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/css", response["Content-Type"])
+        response.close()
+
+        admin_response = self.client.get("/static/admin/css/base.css")
+        self.assertEqual(admin_response.status_code, 200)
+        admin_response.close()
+
     def test_mp4_assets_are_served(self):
         content = b"sample video"
 
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, "banner.mp4").write_bytes(content)
 
-            with override_settings(BASE_DIR=Path(directory)):
+            with override_settings(STATICFILES_DIRS=[directory]):
                 response = self.client.get("/banner.mp4")
 
             self.assertEqual(response.status_code, 200)
@@ -85,6 +100,25 @@ class OrderingApiTests(TestCase):
             response.json()["pizzas"][0]["prices"],
             {"S": "20.00", "M": "30.00", "L": "40.00", "XL": "50.00"},
         )
+        margherita = next(
+            pizza
+            for pizza in response.json()["pizzas"]
+            if pizza["slug"] == "margherita"
+        )
+        self.assertEqual(margherita["image"], "/static/Pizza-Margheritta.webp")
+
+    def test_catalog_normalizes_encoded_image_filenames(self):
+        self.pizza.image = "hot%20honey.jpg"
+        self.pizza.save(update_fields=["image"])
+
+        response = self.client.get("/api/pizzas/")
+        margherita = next(
+            pizza
+            for pizza in response.json()["pizzas"]
+            if pizza["slug"] == "margherita"
+        )
+
+        self.assertEqual(margherita["image"], "/static/hot%20honey.jpg")
 
     def test_admin_created_category_is_available_in_menu_api(self):
         category = Category.objects.create(name="Limited Time", slug="limited-time")
@@ -132,6 +166,7 @@ class OrderingApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         deals = response.json()["deals"]
         visible_deal = next(deal for deal in deals if deal["title"] == "Weekend special")
+        self.assertEqual(visible_deal["image"], "/static/four-cheese.jpg")
         self.assertEqual(visible_deal["previous_price"], "20.00")
         self.assertTrue(visible_deal["is_featured"])
         self.assertNotIn("Hidden offer", [deal["title"] for deal in deals])
