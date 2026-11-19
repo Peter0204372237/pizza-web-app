@@ -20,7 +20,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost" if DEBUG else "",
+        "127.0.0.1,localhost,pizza-web-app-six.vercel.app",
     ).split(",")
     if host.strip()
 ]
