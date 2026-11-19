@@ -1,11 +1,29 @@
 import json
+import tempfile
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from .models import Category, Deal, Order, Pizza
+
+
+class FrontendAssetTests(SimpleTestCase):
+    def test_mp4_assets_are_served(self):
+        content = b"sample video"
+
+        with tempfile.TemporaryDirectory() as directory:
+            Path(directory, "banner.mp4").write_bytes(content)
+
+            with override_settings(BASE_DIR=Path(directory)):
+                response = self.client.get("/banner.mp4")
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response["Content-Type"], "video/mp4")
+            self.assertEqual(b"".join(response.streaming_content), content)
+            response.close()
 
 
 class OrderingApiTests(TestCase):

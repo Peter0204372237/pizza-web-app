@@ -16,7 +16,7 @@ Install the project's Python dependencies:
 python -m pip install -r requirements.txt
 ```
 
-Django is pinned to 5.2 so it works with PostgreSQL 14.
+Django is pinned to 5.2 so it works with PostgreSQL 14. If you don't set PostgreSQL environment variables, the project automatically falls back to a local SQLite database so it can run in a development/test setup without a server.
 
 Open the storefront through Django (`http://127.0.0.1:8000/`), not the VS Code Live Server port. The menu and pizza customization pages call the Django API on the same origin.
 

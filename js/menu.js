@@ -106,6 +106,7 @@
             pizza.description,
             pizza.ingredients.join(" ")
         ].join(" ").toLocaleLowerCase();
+        card.querySelector(".menu-category").textContent = pizza.category;
         if (!grid.querySelector('[data-cat="' + pizza.category_slug + '"]')) {
             card.id = pizza.category_slug;
         }

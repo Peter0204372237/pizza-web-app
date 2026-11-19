@@ -46,7 +46,7 @@
                     <h2>Find your next favorite.</h2>
                 </div>
                 <p class="menu-cart-message" id="menu-cart-message" role="status" aria-live="polite"></p>
-                <p id="menu-count">Loading menu…</p>
+                <p class="menu-count" id="menu-count">Loading menu…</p>
             </div>
 
             <div class="menu-filters" id="menu-filters" role="group" aria-label="Filter by category">
@@ -60,7 +60,10 @@
     <template id="pizza-card-template">
         <article class="menu-card">
             <a class="menu-card-link" href="#" aria-label="Customize pizza"></a>
-            <div class="menu-media"><img alt="" loading="lazy"></div>
+            <div class="menu-media">
+                <img alt="" loading="lazy">
+                <span class="menu-category"></span>
+            </div>
             <div class="menu-body">
                 <h3></h3>
                 <p></p>

@@ -17,6 +17,8 @@
 
     <link rel="stylesheet" href="pizza.css">
     <script src="js/cart.js" defer></script>
+    <script src="js/category-nav.js" defer></script>
+    <script src="js/banner-video.js" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -79,52 +81,181 @@
 
         <!-- CATEGORIES -->
         <section class="container explore-section" aria-labelledby="explore-heading">
-            <p class="section-kicker">THE MENU, YOUR WAY</p>
-            <h2 id="explore-heading">Pick your pizza personality.</h2>
+            <p class="section-kicker">CRISPY, EVERY BITE TASTES</p>
+            <h2 id="explore-heading">Popular Food Items</h2>
 
-            <div class="category-grid">
-                <a class="category-card" href="menu.html#classic">
-                    <img src="ppppp.webp" alt="Classic and traditional pizza" loading="lazy">
-                    <div class="card-overlay">
-                        <span>Classic and Traditional</span>
-                        <div class="arrow-btn" aria-hidden="true"></div>
-                    </div>
-                </a>
+            <div class="category-nav-controls">
+                <button class="category-nav-button" type="button" aria-label="Scroll categories left" data-scroll-direction="-1">
+                    <span aria-hidden="true">←</span>
+                </button>
+                <button class="category-nav-button" type="button" aria-label="Scroll categories right" data-scroll-direction="1">
+                    <span aria-hidden="true">→</span>
+                </button>
+            </div>
 
-                <a class="category-card" href="menu.html#signature">
-                    <img src="pizz.jpg" alt="Gourmet and signature pizza" loading="lazy">
-                    <div class="card-overlay">
-                        <span>Gourmet and Signature</span>
-                        <div class="arrow-btn" aria-hidden="true"></div>
-                    </div>
-                </a>
+            <div class="category-marquee">
+                <div class="category-track">
+                    <div class="category-set">
+                        <a class="category-card" href="menu.html#classic">
+                            <div class="category-card-image">
+                                <img src="ppppp.webp" alt="Classic and traditional pizza" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵20</strong></p>
+                                    <h3>Classic and Traditional</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
 
-                <a class="category-card" href="menu.html#deep-dish">
-                    <img src="Deep-Dish-Pizza-1200-x-1200.jpg" alt="Deep dish and pan pizza" loading="lazy">
-                    <div class="card-overlay">
-                        <span>Deep Dish and Pan</span>
-                        <div class="arrow-btn" aria-hidden="true"></div>
-                    </div>
-                </a>
+                        <a class="category-card" href="menu.html#signature">
+                            <div class="category-card-image">
+                                <img src="pizz.jpg" alt="Gourmet and signature pizza" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵24</strong></p>
+                                    <h3>Gourmet and Signature</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
 
-                <a class="category-card" href="menu.html#meat-lovers">
-                    <img src="Meat-Lovers-Pizza-8.jpeg" alt="Meat lovers feast pizza" loading="lazy">
-                    <div class="card-overlay">
-                        <span>Meat Lovers Feast</span>
-                        <div class="arrow-btn" aria-hidden="true"></div>
-                    </div>
-                </a>
+                        <a class="category-card" href="menu.html#deep-dish">
+                            <div class="category-card-image">
+                                <img src="Deep-Dish-Pizza-1200-x-1200.jpg" alt="Deep dish and pan pizza" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵28</strong></p>
+                                    <h3>Deep Dish and Pan</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
 
-                <a class="category-card" href="menu.html#plant-based">
-                    <!-- Tip: rename "images (1).jpg" to something like veggie-pizza.jpg (no spaces) -->
-                    <img src="images%20(1).jpg" alt="Veggie and plant-based pizza" loading="lazy">
-                    <div class="card-overlay">
-                        <span>Veggie and Plant-Based</span>
-                        <div class="arrow-btn" aria-hidden="true"></div>
+                        <a class="category-card" href="menu.html#meat-lovers">
+                            <div class="category-card-image">
+                                <img src="Meat-Lovers-Pizza-8.jpeg" alt="Meat lovers feast pizza" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵26</strong></p>
+                                    <h3>Meat Lovers Feast</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+
+                        <a class="category-card" href="menu.html#plant-based">
+                            <div class="category-card-image">
+                                <img src="images%20(1).jpg" alt="Veggie and plant-based pizza" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵22</strong></p>
+                                    <h3>Veggie and Plant-Based</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
                     </div>
-                </a>
+
+                    <div class="category-set" aria-hidden="true" inert>
+                        <a class="category-card" href="menu.html#classic" tabindex="-1">
+                            <div class="category-card-image">
+                                <img src="ppppp.webp" alt="" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵20</strong></p>
+                                    <h3>Classic and Traditional</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+                        <a class="category-card" href="menu.html#signature" tabindex="-1">
+                            <div class="category-card-image">
+                                <img src="pizz.jpg" alt="" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵24</strong></p>
+                                    <h3>Gourmet and Signature</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+                        <a class="category-card" href="menu.html#deep-dish" tabindex="-1">
+                            <div class="category-card-image">
+                                <img src="Deep-Dish-Pizza-1200-x-1200.jpg" alt="" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵28</strong></p>
+                                    <h3>Deep Dish and Pan</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+                        <a class="category-card" href="menu.html#meat-lovers" tabindex="-1">
+                            <div class="category-card-image">
+                                <img src="Meat-Lovers-Pizza-8.jpeg" alt="" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵26</strong></p>
+                                    <h3>Meat Lovers Feast</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+                        <a class="category-card" href="menu.html#plant-based" tabindex="-1">
+                            <div class="category-card-image">
+                                <img src="images%20(1).jpg" alt="" loading="lazy">
+                                <span class="category-card-badge">Pizza</span>
+                            </div>
+                            <div class="category-card-body">
+                                <div class="category-card-details">
+                                    <p class="category-card-price">From <strong>GH₵22</strong></p>
+                                    <h3>Veggie and Plant-Based</h3>
+                                </div>
+                                <span class="category-card-link">View item <span aria-hidden="true">→</span></span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
+
+        <div class="container food-motion-showcase" aria-hidden="true">
+            <div class="food-motion-panel food-motion-burger-panel">
+                <div class="food-motion-copy">
+                    <span class="food-motion-kicker">Fresh off the grill</span>
+                    <p class="food-motion-title">Big<br>burger energy</p>
+                </div>
+                <img class="food-motion-art food-motion-burger" src="flyer002.png" alt="" loading="lazy">
+            </div>
+            <div class="food-motion-panel food-motion-pizza-panel">
+                <div class="food-motion-copy">
+                    <span class="food-motion-kicker">Fresh from the oven</span>
+                    <p class="food-motion-title">Pizza<br>night</p>
+                </div>
+                <video class="food-motion-art food-motion-pizza" muted loop playsinline preload="metadata" poster="pepperoni-pizza.jpg" aria-hidden="true">
+                    <source src="pizza-banner-compatible.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
 
         <section class="container house-pick" aria-labelledby="house-pick-heading">
             <div class="house-pick-image">

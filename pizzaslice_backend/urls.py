@@ -13,7 +13,7 @@ urlpatterns = [
     path("api/orders/", views.create_order, name="create-order"),
     path("api/orders/lookup/", views.track_order, name="track-order"),
     re_path(
-        r"^(?P<asset_path>.+\.(?:css|js|jpg|jpeg|png|webp|svg|ico|woff2?))$",
+        r"^(?P<asset_path>.+\.(?:css|js|jpg|jpeg|png|webp|svg|ico|woff2?|mp4))$",
         views.frontend_asset,
         name="frontend-asset",
     ),

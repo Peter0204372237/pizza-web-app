@@ -240,6 +240,62 @@ def is_promotion_day(deal, today):
     return True
 
 
+def is_standard_small(item):
+    options = item["options"]
+    return (
+        options["size"] == "S"
+        and options["crust"] == "Original"
+        and not options["extraToppings"]
+    )
+
+
+def bundle_regular_price(items, eligible_pizzas):
+    pizzas_in_cart = {item["pizza"].pk for item in items if is_standard_small(item)}
+    if not eligible_pizzas or any(pizza.pk not in pizzas_in_cart for pizza in eligible_pizzas):
+        return None
+    return sum(
+        (pizza.price_for_size("S") for pizza in eligible_pizzas),
+        Decimal("0.00"),
+    )
+
+
+def category_pair_regular_price(items, deal):
+    eligible_units = [
+        item["pizza"].price_for_size("S")
+        for item in items
+        if is_standard_small(item)
+        and deal.eligible_category_id is not None
+        and item["pizza"].category_id == deal.eligible_category_id
+        for _ in range(item["quantity"])
+    ]
+    if len(eligible_units) < 2:
+        return None
+    return sum(
+        sorted(eligible_units, reverse=True)[:2],
+        Decimal("0.00"),
+    )
+
+
+def pizza_price_regular_price(items, deal):
+    eligible_units = [
+        item["pizza"].price_for_size("S")
+        for item in items
+        if is_standard_small(item)
+        and item["pizza"].pk in {pizza.pk for pizza in deal.eligible_pizzas.all()}
+        for _ in range(item["quantity"])
+    ]
+    if not eligible_units:
+        return None
+    return eligible_units[0]
+
+
+REGULAR_PRICE_CALCULATORS = {
+    Deal.PromotionType.BUNDLE: bundle_regular_price,
+    Deal.PromotionType.CATEGORY_PAIR: category_pair_regular_price,
+    Deal.PromotionType.PIZZA_PRICE: pizza_price_regular_price,
+}
+
+
 def calculate_order_discount(items):
     today = timezone.localdate()
     candidates = []
@@ -257,59 +313,14 @@ def calculate_order_discount(items):
         ):
             continue
 
-        eligible_pizzas = list(deal.eligible_pizzas.all())
-        eligible_ids = {pizza.pk for pizza in eligible_pizzas}
-        eligible_units = []
-        for item in items:
-            is_standard = (
-                item["options"]["size"] == "S"
-                and item["options"]["crust"] == "Original"
-                and not item["options"]["extraToppings"]
-            )
-            if not is_standard:
-                continue
-            pizza = item["pizza"]
-            if deal.promotion_type == Deal.PromotionType.CATEGORY_PAIR:
-                matches = (
-                    deal.eligible_category_id is not None
-                    and pizza.category_id == deal.eligible_category_id
-                )
-            else:
-                matches = pizza.pk in eligible_ids
-            if matches:
-                eligible_units.extend(
-                    [pizza.price_for_size("S")] * item["quantity"]
-                )
-
+        calculator = REGULAR_PRICE_CALCULATORS.get(deal.promotion_type)
+        if calculator is None:
+            continue
         if deal.promotion_type == Deal.PromotionType.BUNDLE:
-            if not eligible_pizzas or any(
-                not any(
-                    item["pizza"].pk == pizza.pk
-                    and item["options"]["size"] == "S"
-                    and item["options"]["crust"] == "Original"
-                    and not item["options"]["extraToppings"]
-                    and item["quantity"] > 0
-                    for item in items
-                )
-                for pizza in eligible_pizzas
-            ):
-                continue
-            regular_price = sum(
-                (pizza.price_for_size("S") for pizza in eligible_pizzas),
-                Decimal("0.00"),
-            )
-        elif deal.promotion_type == Deal.PromotionType.CATEGORY_PAIR:
-            if len(eligible_units) < 2:
-                continue
-            regular_price = sum(
-                sorted(eligible_units, reverse=True)[:2],
-                Decimal("0.00"),
-            )
-        elif deal.promotion_type == Deal.PromotionType.PIZZA_PRICE:
-            if not eligible_units:
-                continue
-            regular_price = eligible_units[0]
+            regular_price = bundle_regular_price(items, list(deal.eligible_pizzas.all()))
         else:
+            regular_price = calculator(items, deal)
+        if regular_price is None:
             continue
 
         savings = regular_price - deal.promotion_price
