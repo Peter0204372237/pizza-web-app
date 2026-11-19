@@ -5,9 +5,12 @@ from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase, TestCase, override_settings
+from django.urls import reverse
 
+from .admin import PizzaAdminForm
 from .models import Category, Deal, Order, Pizza
 
 
@@ -137,6 +140,28 @@ class OrderingApiTests(TestCase):
             response.json()["categories"],
         )
         self.assertEqual(catalog_pizza["category_slug"], "limited-time")
+
+    def test_pizza_admin_form_rejects_negative_prices_and_invalid_ingredients(self):
+        form = PizzaAdminForm(
+            data={
+                "slug": self.pizza.slug,
+                "name": self.pizza.name,
+                "category": str(self.pizza.category_id),
+                "description": self.pizza.description,
+                "ingredients": json.dumps({"not": "a list"}),
+                "image": self.pizza.image,
+                "small_price": "-1.00",
+                "medium_price": "30.00",
+                "large_price": "40.00",
+                "extra_large_price": "50.00",
+                "is_active": "on",
+            },
+            instance=self.pizza,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("small_price", form.errors)
+        self.assertIn("ingredients", form.errors)
 
     def test_deals_api_lists_active_deals_and_hides_inactive_deals(self):
         Deal.objects.create(
@@ -289,9 +314,24 @@ class OrderingApiTests(TestCase):
 
         self.assertEqual(response.status_code, 201)
         created = response.json()
+        self.assertRegex(created["reference"], r"^PS-[A-F0-9]{12}$")
         self.assertEqual(created["total"], "82.00")
         self.assertEqual(created["status"], Order.Status.RECEIVED)
-        self.assertEqual(Order.objects.get().phone, "233241234567")
+        order = Order.objects.get(reference=created["reference"])
+        self.assertEqual(order.phone, "233241234567")
+        item = order.items.get()
+        self.assertEqual(item.quantity, 2)
+        self.assertEqual(item.unit_price, Decimal("41.00"))
+        self.assertEqual(
+            item.options,
+            {
+                "size": "M",
+                "dough": "Classic",
+                "crust": "Stuffed crust",
+                "extraToppings": ["Mushrooms", "Olives"],
+                "removedIngredients": [],
+            },
+        )
 
         tracked = self.post_json(
             "/api/orders/lookup/",
@@ -300,6 +340,73 @@ class OrderingApiTests(TestCase):
         self.assertEqual(tracked.status_code, 200)
         self.assertEqual(tracked.json()["items"][0]["pizza"], "Margherita")
         self.assertEqual(tracked.json()["total"], "82.00")
+
+    def test_order_saves_custom_options_and_uses_server_price(self):
+        self.payload["items"] = [
+            {
+                "slug": self.pizza.slug,
+                "pizza": "Untrusted client name",
+                "quantity": 2,
+                "size": "XL",
+                "dough": "Whole wheat",
+                "crust": "Gluten-free",
+                "extraToppings": ["Mushrooms"],
+                "removedIngredients": ["basil"],
+                "unitPrice": 1,
+                "price": 2,
+            }
+        ]
+
+        response = self.post_json("/api/orders/", self.payload)
+
+        self.assertEqual(response.status_code, 201)
+        order = Order.objects.get(reference=response.json()["reference"])
+        item = order.items.get()
+        self.assertEqual(order.subtotal, Decimal("116.00"))
+        self.assertEqual(order.total, Decimal("116.00"))
+        self.assertEqual(item.pizza, self.pizza)
+        self.assertEqual(item.pizza_name, self.pizza.name)
+        self.assertEqual(item.quantity, 2)
+        self.assertEqual(item.unit_price, Decimal("58.00"))
+        self.assertEqual(
+            item.options,
+            {
+                "size": "XL",
+                "dough": "Whole wheat",
+                "crust": "Gluten-free",
+                "extraToppings": ["Mushrooms"],
+                "removedIngredients": ["basil"],
+            },
+        )
+
+    def test_order_rejects_invalid_dough_crust_and_removed_ingredients(self):
+        invalid_options = (
+            ("dough", "Invalid dough"),
+            ("crust", "Invalid crust"),
+            ("removedIngredients", ["Not an ingredient"]),
+        )
+        for field, value in invalid_options:
+            with self.subTest(field=field):
+                self.payload["items"][0][field] = value
+                response = self.post_json("/api/orders/", self.payload)
+
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(Order.objects.count(), 0)
+                self.payload["items"][0][field] = {
+                    "dough": "Classic",
+                    "crust": "Stuffed crust",
+                    "removedIngredients": [],
+                }[field]
+
+    def test_order_rejects_a_negative_admin_price(self):
+        self.pizza.small_price = Decimal("-1.00")
+        self.pizza.save(update_fields=["small_price"])
+        self.payload["items"][0]["size"] = "S"
+
+        response = self.post_json("/api/orders/", self.payload)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Order.objects.count(), 0)
 
     def test_order_total_uses_configured_size_price(self):
         self.pizza.medium_price = Decimal("35.50")
@@ -334,6 +441,23 @@ class OrderingApiTests(TestCase):
         self.assertEqual(tracked.status_code, 200)
         self.assertEqual(tracked.json()["status"], Order.Status.PREPARING)
         self.assertEqual(tracked.json()["status_label"], "Preparing")
+
+    def test_order_status_is_editable_in_django_admin(self):
+        created = self.post_json("/api/orders/", self.payload).json()
+        order = Order.objects.get(reference=created["reference"])
+        admin_user = get_user_model().objects.create_superuser(
+            username="ordering-admin",
+            email="ordering-admin@example.com",
+            password="test-password",
+        )
+        self.client.force_login(admin_user)
+
+        response = self.client.get(
+            reverse("admin:ordering_order_change", args=[order.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("status", response.context["adminform"].form.fields)
 
     def test_order_rejects_unavailable_topping(self):
         self.payload["items"][0]["extraToppings"] = ["Not on the menu"]

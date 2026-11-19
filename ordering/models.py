@@ -1,7 +1,7 @@
 import uuid
 
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
 
 
 def new_order_reference():
@@ -31,10 +31,30 @@ class Pizza(models.Model):
     description = models.TextField()
     ingredients = models.JSONField(default=list)
     image = models.CharField(max_length=200)
-    small_price = models.DecimalField(max_digits=7, decimal_places=2, default=20)
-    medium_price = models.DecimalField(max_digits=7, decimal_places=2, default=30)
-    large_price = models.DecimalField(max_digits=7, decimal_places=2, default=40)
-    extra_large_price = models.DecimalField(max_digits=7, decimal_places=2, default=50)
+    small_price = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        default=20,
+        validators=[MinValueValidator(0)],
+    )
+    medium_price = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        default=30,
+        validators=[MinValueValidator(0)],
+    )
+    large_price = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        default=40,
+        validators=[MinValueValidator(0)],
+    )
+    extra_large_price = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        default=50,
+        validators=[MinValueValidator(0)],
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:

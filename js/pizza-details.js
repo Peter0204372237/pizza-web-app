@@ -81,6 +81,7 @@
 
         form.addEventListener("change", updatePrice);
         quantityInput.addEventListener("input", updatePrice);
+        updatePrice();
         form.addEventListener("submit", function (event) {
             event.preventDefault();
             if (!form.reportValidity()) {

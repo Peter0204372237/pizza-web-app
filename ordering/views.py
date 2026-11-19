@@ -226,8 +226,12 @@ def prepare_item(raw_item):
         "Removed ingredients",
         pizza.ingredients,
     )
+    base_price = pizza.price_for_size(size)
+    if base_price < 0:
+        raise ValueError("This pizza has an invalid price and cannot be ordered.")
+
     unit_price = (
-        pizza.price_for_size(size)
+        base_price
         + CRUST_SURCHARGES[crust]
         + Decimal("3.00") * len(extras)
     )

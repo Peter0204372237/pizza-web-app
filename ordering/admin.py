@@ -49,6 +49,27 @@ class DealAdminForm(forms.ModelForm):
         return cleaned_data
 
 
+class PizzaAdminForm(forms.ModelForm):
+    class Meta:
+        model = Pizza
+        fields = "__all__"
+
+    def clean_ingredients(self):
+        ingredients = self.cleaned_data["ingredients"]
+        if not isinstance(ingredients, list) or any(
+            not isinstance(ingredient, str) or not ingredient.strip()
+            for ingredient in ingredients
+        ):
+            raise forms.ValidationError(
+                "Ingredients must be a JSON list of non-empty text values."
+            )
+
+        normalized = [ingredient.strip() for ingredient in ingredients]
+        if len(set(normalized)) != len(normalized):
+            raise forms.ValidationError("Ingredients must not contain duplicates.")
+        return normalized
+
+
 @admin.register(Deal)
 class DealAdmin(admin.ModelAdmin):
     form = DealAdminForm
@@ -91,6 +112,7 @@ class DealAdmin(admin.ModelAdmin):
 
 @admin.register(Pizza)
 class PizzaAdmin(admin.ModelAdmin):
+    form = PizzaAdminForm
     list_display = (
         "name",
         "category",

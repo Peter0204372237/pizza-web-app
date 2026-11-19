@@ -61,6 +61,20 @@
         });
     }
 
+    function isOrderConfirmation(order) {
+        return Boolean(order) &&
+            typeof order.reference === "string" &&
+            /^PS-[A-Z0-9]{12}$/.test(order.reference) &&
+            typeof order.total === "string" &&
+            Number.isFinite(Number(order.total)) &&
+            Array.isArray(order.discounts) &&
+            order.discounts.every(function (discount) {
+                return discount &&
+                    typeof discount.title === "string" &&
+                    Number.isFinite(Number(discount.amount));
+            });
+    }
+
     function renderSummary(quote) {
         if (quote) {
             summary.replaceChildren();
@@ -167,7 +181,6 @@
         event.preventDefault();
         if (!form.reportValidity()) return;
 
-        const submitButton = form.querySelector('button[type="submit"]');
         try {
             const items = window.PizzaCart.getItems();
             if (!items.length) {
@@ -183,40 +196,55 @@
             submitButton.disabled = true;
             message.textContent = "Sending your order…";
             message.classList.remove("cart-error");
+            const csrf = csrfToken();
+            const requestBody = JSON.stringify({
+                customer: {
+                    name: document.getElementById("customer-name").value.trim(),
+                    phone: document.getElementById("customer-phone").value.trim(),
+                    address: document.getElementById("delivery-address").value.trim(),
+                    city: document.getElementById("delivery-city").value.trim(),
+                    instructions: document.getElementById("delivery-instructions").value.trim()
+                },
+                items: orderItems(items)
+            });
+            orderSubmissionUncertain = true;
             const response = await fetch("/api/orders/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken()
+                    "X-CSRFToken": csrf
                 },
-                body: JSON.stringify({
-                    customer: {
-                        name: document.getElementById("customer-name").value.trim(),
-                        phone: document.getElementById("customer-phone").value.trim(),
-                        address: document.getElementById("delivery-address").value.trim(),
-                        city: document.getElementById("delivery-city").value.trim(),
-                        instructions: document.getElementById("delivery-instructions").value.trim()
-                    },
-                    items: orderItems(items)
-                })
+                body: requestBody
             });
             if (response.status >= 500) {
-                orderSubmissionUncertain = true;
                 throw new Error(
-                    "The server returned an error (HTTP " + response.status +
-                    "), so we can’t confirm whether your order was saved. " +
-                    "Contact the restaurant before retrying to avoid a duplicate."
+                    "The server returned an error (HTTP " + response.status + ")."
                 );
+            }
+            if (!response.ok) {
+                orderSubmissionUncertain = false;
+                const errorOrder = await readJsonResponse(
+                    response,
+                    "We couldn’t place your order"
+                );
+                throw new Error(errorOrder.error || "We couldn’t place your order.");
             }
             const order = await readJsonResponse(
                 response,
                 "We couldn’t place your order"
             );
-            if (!response.ok) {
-                throw new Error(order.error || "We couldn’t place your order.");
+            if (!isOrderConfirmation(order)) {
+                throw new Error("The order service returned an invalid confirmation.");
             }
 
-            window.PizzaCart.clear();
+            orderSubmissionUncertain = false;
+            let cartClearWarning = "";
+            try {
+                window.PizzaCart.clear();
+            } catch (error) {
+                cartClearWarning = "Your order was received, but the saved cart could not be cleared. Remove its items before placing another order.";
+                console.error("Could not clear the cart after order confirmation.", error);
+            }
             content.hidden = true;
             confirmation.hidden = false;
             document.getElementById("confirmation-order-id").textContent = order.reference;
@@ -228,14 +256,18 @@
                     }).join(", ");
                 document.getElementById("confirmation-discount-row").hidden = false;
             }
+            message.textContent = cartClearWarning;
+            message.classList.toggle("cart-error", Boolean(cartClearWarning));
             window.scrollTo(0, 0);
         } catch (error) {
-            message.textContent = error.message || "We couldn’t reach the order service. Please try again.";
+            message.textContent = orderSubmissionUncertain
+                ? "We couldn’t confirm whether your order was saved. Contact the restaurant before retrying."
+                : error.message || "We couldn’t reach the order service. Please try again.";
             message.classList.add("cart-error");
             console.error("Could not place order.", error);
         } finally {
             if (!orderSubmissionUncertain) {
-                submitButton.disabled = false;
+                submitButton.disabled = !quoteReady;
             }
         }
     });

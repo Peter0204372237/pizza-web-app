@@ -13,7 +13,7 @@
         const unitPrice = Number(item.unitPrice === undefined ? storedPrice / quantity : item.unitPrice);
 
         if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99 ||
-            !Number.isFinite(unitPrice) || unitPrice <= 0) {
+            !Number.isFinite(unitPrice) || unitPrice < 0) {
             throw new Error("The saved cart contains an invalid quantity or price.");
         }
 
@@ -46,7 +46,7 @@
 
     function itemKey(item) {
         return JSON.stringify([
-            item.pizza,
+            item.slug || item.pizza,
             item.size || "",
             item.dough || "",
             item.crust || "",
