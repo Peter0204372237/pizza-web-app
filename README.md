@@ -64,4 +64,4 @@ The order tracker only returns an order when both the reference and phone number
 
 ## Production settings
 
-Before deploying, set `DJANGO_DEBUG=false`, a unique `DJANGO_SECRET_KEY`, and comma-separated `DJANGO_ALLOWED_HOSTS`. Set `DJANGO_CSRF_TRUSTED_ORIGINS` to the full trusted HTTPS origins when needed. Use HTTPS and a production static-file server; do not use Django's development server in production.
+Before deploying, set `DJANGO_DEBUG=false`, a unique `DJANGO_SECRET_KEY`, and comma-separated `DJANGO_ALLOWED_HOSTS` for custom domains. Vercel deployment and project-production hostnames are included automatically. Set `DJANGO_CSRF_TRUSTED_ORIGINS` to the full trusted HTTPS origins when needed. Use HTTPS and a production static-file server; do not use Django's development server in production.

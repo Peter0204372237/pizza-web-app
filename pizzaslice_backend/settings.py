@@ -6,7 +6,10 @@ from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
+DEBUG = os.environ.get(
+    "DJANGO_DEBUG",
+    "false" if os.environ.get("VERCEL") else "true",
+).lower() == "true"
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if not DEBUG:
@@ -21,6 +24,15 @@ ALLOWED_HOSTS = [
     ).split(",")
     if host.strip()
 ]
+if os.environ.get("VERCEL"):
+    for host in (
+        os.environ.get("VERCEL_URL", ""),
+        os.environ.get("VERCEL_PROJECT_PRODUCTION_URL", ""),
+        "pizza-web-app-six.vercel.app",
+    ):
+        host = host.strip()
+        if host and host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(host)
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured("Set DJANGO_ALLOWED_HOSTS when DEBUG is disabled.")
 
