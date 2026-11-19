@@ -16,7 +16,7 @@ Install the project's Python dependencies:
 python -m pip install -r requirements.txt
 ```
 
-Django is pinned to 5.2 so it works with PostgreSQL 14. If you don't set PostgreSQL environment variables, the project automatically falls back to a local SQLite database so it can run in a development/test setup without a server.
+Django is pinned to 5.2 and the PostgreSQL driver is included in `requirements.txt`. Local development uses SQLite by default. To use PostgreSQL locally, set all five `DB_*` variables below. Production (including Vercel) requires PostgreSQL configuration and fails with a clear error if any variable is missing.
 
 Open the storefront through Django (`http://127.0.0.1:8000/`), not the VS Code Live Server port. The menu and pizza customization pages call the Django API on the same origin.
 
@@ -26,15 +26,17 @@ In pgAdmin, connect to your local PostgreSQL server and run:
 CREATE DATABASE pizzaslice;
 ```
 
-Back in the same PowerShell window, provide the password you chose for the PostgreSQL `postgres` user. These environment variables apply only to that PowerShell window:
+Back in the same PowerShell window, provide the connection values for your PostgreSQL database. These environment variables apply only to that PowerShell window:
 
 ```powershell
-$env:POSTGRES_DB = "pizzaslice"
-$env:POSTGRES_USER = "postgres"
-$env:POSTGRES_PASSWORD = "your-postgres-password"
+$env:DB_NAME = "pizzaslice"
+$env:DB_USER = "postgres"
+$env:DB_PASSWORD = "your-postgres-password"
+$env:DB_HOST = "127.0.0.1"
+$env:DB_PORT = "5432"
 ```
 
-Create the database tables, initial pizza catalog, starter offers, and an admin account:
+Create the database tables and initial menu/deal records, then create an admin account:
 
 ```powershell
 python manage.py migrate
@@ -64,4 +66,6 @@ The order tracker only returns an order when both the reference and phone number
 
 ## Production settings
 
-Before deploying, set `DJANGO_DEBUG=false`, a unique `DJANGO_SECRET_KEY`, and comma-separated `DJANGO_ALLOWED_HOSTS` for custom domains. Vercel deployment and project-production hostnames are included automatically. Set `DJANGO_CSRF_TRUSTED_ORIGINS` to the full trusted HTTPS origins when needed. Use HTTPS and a production static-file server; do not use Django's development server in production.
+Before deploying, set `DJANGO_DEBUG=false` and a unique `DJANGO_SECRET_KEY` in Vercel's Environment Variables. Vercel deployment and project-production hostnames are included in `ALLOWED_HOSTS`; their HTTPS origins, including `https://pizza-web-app-six.vercel.app`, are also trusted for CSRF. Set `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS` to exact hostnames/origins when adding a custom domain. Do not use wildcard hosts or origins. Vercel's forwarded protocol is used for HTTPS detection; Django redirects HTTP to HTTPS, uses secure cookies, and sends an HSTS policy on Vercel. Password validation and Django's default password hashing remain enabled.
+
+For Vercel, add `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT` to the project's Environment Variables using the values from your managed PostgreSQL provider. Configure the environments you deploy (Production and Preview, if used), then redeploy. Keep credentials in Vercel's environment settings, not in source files. Run `python manage.py migrate --noinput` as a controlled release step with those same variables set; do not run migrations at serverless function startup. Migrations create the schema and initial menu/deal records, but they do not copy existing customer, order, or product records from SQLite. Back up and transfer any existing records separately before switching production traffic to PostgreSQL.

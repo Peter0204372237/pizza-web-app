@@ -386,4 +386,11 @@
     .checkout-section {
         padding: 16px;
     }
+
+    .place-order {
+        position: sticky;
+        bottom: 12px;
+        z-index: 2;
+        box-shadow: 0 6px 16px rgba(43, 29, 26, 0.22);
+    }
 }

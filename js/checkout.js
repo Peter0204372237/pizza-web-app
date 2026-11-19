@@ -14,6 +14,7 @@
     let quoteRequest = 0;
     let currentItems = [];
     let quoteReady = false;
+    let orderSubmissionUncertain = false;
 
     function money(value) {
         return "GH₵" + value.toFixed(2).replace(/\.00$/, "");
@@ -27,6 +28,22 @@
             throw new Error("Security token missing. Refresh the page and try again.");
         }
         return decodeURIComponent(cookie.slice("csrftoken=".length));
+    }
+
+    async function readJsonResponse(response, fallbackMessage) {
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+            throw new Error(fallbackMessage + " (HTTP " + response.status + ").");
+        }
+
+        try {
+            return await response.json();
+        } catch (error) {
+            if (error instanceof SyntaxError) {
+                throw new Error(fallbackMessage + " (invalid JSON response).");
+            }
+            throw error;
+        }
     }
 
     function orderItems(items) {
@@ -120,7 +137,10 @@
                 },
                 body: JSON.stringify({ items: orderItems(items) })
             });
-            const quote = await response.json();
+            const quote = await readJsonResponse(
+                response,
+                "We couldn’t calculate your order total"
+            );
             if (requestId !== quoteRequest) {
                 return;
             }
@@ -180,7 +200,18 @@
                     items: orderItems(items)
                 })
             });
-            const order = await response.json();
+            if (response.status >= 500) {
+                orderSubmissionUncertain = true;
+                throw new Error(
+                    "The server returned an error (HTTP " + response.status +
+                    "), so we can’t confirm whether your order was saved. " +
+                    "Contact the restaurant before retrying to avoid a duplicate."
+                );
+            }
+            const order = await readJsonResponse(
+                response,
+                "We couldn’t place your order"
+            );
             if (!response.ok) {
                 throw new Error(order.error || "We couldn’t place your order.");
             }
@@ -203,7 +234,9 @@
             message.classList.add("cart-error");
             console.error("Could not place order.", error);
         } finally {
-            submitButton.disabled = false;
+            if (!orderSubmissionUncertain) {
+                submitButton.disabled = false;
+            }
         }
     });
 
