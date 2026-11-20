@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.utils import get_random_secret_key
@@ -7,7 +8,7 @@ from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-IS_VERCEL = bool(os.environ.get("VERCEL"))
+IS_VERCEL = os.environ.get("VERCEL", "").lower() in {"1", "true", "yes"}
 DEBUG = os.environ.get(
     "DJANGO_DEBUG",
     "false" if IS_VERCEL else "true",
@@ -113,29 +114,106 @@ POSTGRES_ENV_VARS = (
     "DB_PORT",
 )
 USE_SQLITE = os.environ.get("USE_SQLITE", "").lower() in {"1", "true", "yes"}
-REQUIRES_POSTGRES = bool(os.environ.get("VERCEL")) or not DEBUG
-HAS_POSTGRES_CONFIG = any(os.environ.get(var) for var in POSTGRES_ENV_VARS)
+REQUIRES_POSTGRES = IS_VERCEL or not DEBUG
+DATABASE_CONFIG = {
+    name: os.environ.get(name, "").strip()
+    for name in POSTGRES_ENV_VARS
+}
+DATABASE_URL = (
+    os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL") or ""
+).strip()
+HAS_POSTGRES_CONFIG = any(DATABASE_CONFIG.values())
 
-if REQUIRES_POSTGRES or (HAS_POSTGRES_CONFIG and not USE_SQLITE):
-    missing_database_vars = [
-        var for var in POSTGRES_ENV_VARS if not os.environ.get(var, "").strip()
-    ]
-    if missing_database_vars:
+
+def postgres_database_from_url(database_url):
+    try:
+        parsed_url = urlsplit(database_url)
+        port = parsed_url.port
+    except ValueError as error:
         raise ImproperlyConfigured(
-            "PostgreSQL configuration is incomplete. Set the following environment "
-            f"variables: {', '.join(missing_database_vars)}."
+            "DATABASE_URL or POSTGRES_URL has an invalid host or port."
+        ) from error
+    if port is not None and not 1 <= port <= 65535:
+        raise ImproperlyConfigured(
+            "DATABASE_URL or POSTGRES_URL has an invalid port."
         )
 
+    if parsed_url.scheme not in {"postgres", "postgresql"}:
+        raise ImproperlyConfigured(
+            "DATABASE_URL or POSTGRES_URL must use postgres:// or postgresql://."
+        )
+
+    database_name = unquote(parsed_url.path.lstrip("/"))
+    missing_url_parts = []
+    if not parsed_url.hostname:
+        missing_url_parts.append("host")
+    if not parsed_url.username:
+        missing_url_parts.append("user")
+    if not parsed_url.password:
+        missing_url_parts.append("password")
+    if not database_name:
+        missing_url_parts.append("database name")
+    if missing_url_parts:
+        raise ImproperlyConfigured(
+            "DATABASE_URL or POSTGRES_URL is missing: "
+            + ", ".join(missing_url_parts)
+            + "."
+        )
+
+    options = {
+        name: values[-1]
+        for name, values in parse_qs(parsed_url.query).items()
+        if name in {
+            "application_name",
+            "connect_timeout",
+            "sslmode",
+            "sslrootcert",
+            "sslcert",
+            "sslkey",
+        }
+    }
+    database = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": database_name,
+        "USER": unquote(parsed_url.username),
+        "PASSWORD": unquote(parsed_url.password),
+        "HOST": parsed_url.hostname,
+        "PORT": port or 5432,
+    }
+    if options:
+        database["OPTIONS"] = options
+    return database
+
+
+if USE_SQLITE and DEBUG and not IS_VERCEL:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+elif all(DATABASE_CONFIG.values()):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ["DB_NAME"],
-            "USER": os.environ["DB_USER"],
-            "PASSWORD": os.environ["DB_PASSWORD"],
-            "HOST": os.environ["DB_HOST"],
-            "PORT": os.environ["DB_PORT"],
+            "NAME": DATABASE_CONFIG["DB_NAME"],
+            "USER": DATABASE_CONFIG["DB_USER"],
+            "PASSWORD": DATABASE_CONFIG["DB_PASSWORD"],
+            "HOST": DATABASE_CONFIG["DB_HOST"],
+            "PORT": DATABASE_CONFIG["DB_PORT"],
         }
     }
+elif DATABASE_URL:
+    DATABASES = {"default": postgres_database_from_url(DATABASE_URL)}
+elif REQUIRES_POSTGRES or HAS_POSTGRES_CONFIG:
+    missing_database_vars = [
+        var for var in POSTGRES_ENV_VARS if not DATABASE_CONFIG[var]
+    ]
+    raise ImproperlyConfigured(
+        "PostgreSQL is required, but the configuration is incomplete. "
+        f"Missing variables: {', '.join(missing_database_vars)}. "
+        "Set all five DB_* variables or provide DATABASE_URL or POSTGRES_URL."
+    )
 else:
     DATABASES = {
         "default": {
