@@ -302,3 +302,52 @@
     }
 }
 
+@media (max-width: 560px) {
+    .track-hero {
+        padding: 44px 16px 32px;
+    }
+
+    .track-hero h1 {
+        font-size: 36px;
+    }
+
+    .track-layout {
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .track-form-card,
+    .track-result {
+        padding: 18px;
+    }
+
+    .form-group input {
+        min-height: 48px;
+    }
+
+    .result-head {
+        margin-bottom: 22px;
+    }
+
+    .timeline li {
+        gap: 12px;
+    }
+
+    .order-summary {
+        margin-top: 24px;
+        padding: 16px;
+    }
+
+    .faq {
+        margin-top: 44px;
+    }
+
+    .faq summary {
+        padding: 15px 16px;
+    }
+
+    .faq details p {
+        padding: 0 16px 16px;
+    }
+}
+

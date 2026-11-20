@@ -144,4 +144,28 @@
     window.addEventListener("pizza-cart-updated", refreshBadges);
     window.addEventListener("storage", refreshBadges);
     document.addEventListener("DOMContentLoaded", refreshBadges);
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("nav-toggle");
+        if (!toggle) return;
+
+        document.querySelectorAll(".nav-links a").forEach(function (link) {
+            link.addEventListener("click", function () {
+                toggle.checked = false;
+            });
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && toggle.checked) {
+                toggle.checked = false;
+                document.querySelector(".nav-toggle")?.focus();
+            }
+        });
+
+        window.addEventListener("resize", function () {
+            if (window.innerWidth > 768) {
+                toggle.checked = false;
+            }
+        });
+    });
 }());

@@ -14,6 +14,18 @@
     let pizzas = [];
     let selectedCategory = null;
 
+    function showLoading() {
+        grid.replaceChildren();
+        for (let index = 0; index < 6; index += 1) {
+            const skeleton = document.createElement("div");
+            skeleton.className = "menu-card-loading";
+            skeleton.setAttribute("aria-hidden", "true");
+            grid.append(skeleton);
+        }
+    }
+
+    showLoading();
+
     function money(value) {
         return "GH₵" + Number(value);
     }
@@ -120,6 +132,10 @@
         link.setAttribute("aria-label", "Customize " + pizza.name);
         image.src = pizza.image;
         image.alt = pizza.name + " pizza";
+        image.addEventListener("error", function () {
+            image.style.display = "none";
+            image.parentElement.classList.add("menu-media-error");
+        });
         card.querySelector("h3").textContent = pizza.name;
         card.querySelector(".menu-body > p").textContent = pizza.description;
         card.querySelector(".menu-price").textContent = money(pizza.prices.S);

@@ -210,6 +210,22 @@
     transform: scale(1.05);
 }
 
+.menu-card-loading {
+    min-height: 320px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background:
+        linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.85) 50%, transparent 80%) 0 0 / 220% 100%,
+        #eee4d9;
+    animation: menu-shimmer 1.25s linear infinite;
+}
+
+@keyframes menu-shimmer {
+    to {
+        background-position: -220% 0, 0 0;
+    }
+}
+
 .menu-category {
     position: absolute;
     top: 12px;
