@@ -1007,9 +1007,9 @@ a.category-card {
     overflow-y: hidden;
     padding: 8px 4px 18px;
     scroll-behavior: smooth;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
+    overscroll-behavior-x: none;
     scrollbar-width: none;
 }
 
@@ -1168,6 +1168,7 @@ a.category-card {
     background: var(--surface);
     box-shadow: 0 10px 28px rgba(80, 42, 27, 0.08);
     scroll-snap-align: start;
+    scroll-snap-stop: always;
 }
 
 .category-card:nth-last-child(-n + 2) {
