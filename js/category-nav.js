@@ -10,13 +10,17 @@
         throw new Error("The category navigation controls are missing required elements.");
     }
 
+    marquee.scrollLeft = 0;
+
     function scrollCategories(direction) {
         const gap = parseFloat(window.getComputedStyle(categorySet).columnGap) || 0;
         const step = firstCard.getBoundingClientRect().width + gap;
+        const maxScroll = Math.max(0, marquee.scrollWidth - marquee.clientWidth);
+        const target = Math.max(0, Math.min(maxScroll, marquee.scrollLeft + direction * step));
         const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
             ? "auto"
             : "smooth";
-        marquee.scrollBy({ left: direction * step, behavior: behavior });
+        marquee.scrollTo({ left: target, behavior: behavior });
     }
 
     buttons.forEach(function (button) {
