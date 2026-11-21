@@ -999,21 +999,22 @@ a.category-card {
 }
 
 .category-marquee {
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 8px 4px 18px;
     scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.category-marquee::-webkit-scrollbar {
+    display: none;
 }
 
 .category-track {
     display: flex;
     width: max-content;
-    animation: category-marquee 40s linear infinite;
-}
-
-.category-marquee:hover .category-track,
-.category-marquee:focus-within .category-track,
-.category-marquee.is-manually-scrolling .category-track {
-    animation-play-state: paused;
 }
 
 .category-set {
@@ -1025,26 +1026,12 @@ a.category-card {
 
 .category-card {
     flex: 0 0 clamp(220px, 24vw, 280px);
-}
-
-@keyframes category-marquee {
-    to {
-        transform: translateX(-50%);
-    }
+    scroll-snap-align: start;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .category-track {
-        animation: none;
-    }
-
     .category-marquee {
-        overflow-x: auto;
         scroll-behavior: auto;
-    }
-
-    .category-set[aria-hidden="true"] {
-        display: none;
     }
 }
 
