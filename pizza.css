@@ -1403,15 +1403,29 @@ a.category-card {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767px) {
     .food-motion-showcase {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
     }
 
     .food-motion-panel {
-        min-height: 175px;
-        padding: 14px 10px;
+        width: 100%;
+        min-width: 0;
+        min-height: clamp(200px, 32vw, 240px);
+        padding: clamp(20px, 4vw, 28px);
+        border-radius: 20px;
+    }
+
+    .food-motion-art {
+        max-height: clamp(140px, 28vw, 210px);
+    }
+}
+
+@media (max-width: 600px) {
+    .food-motion-panel {
+        min-height: 190px;
+        padding: 14px 16px;
     }
 
     .food-motion-panel::before {
@@ -1435,7 +1449,7 @@ a.category-card {
     }
 
     .food-motion-art {
-        max-height: 140px;
+        max-height: 160px;
     }
 
     .food-motion-burger {
