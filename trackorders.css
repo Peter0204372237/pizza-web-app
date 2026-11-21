@@ -101,8 +101,10 @@
 }
 
 .result-head h2 {
+    min-width: 0;
     font-size: 24px;
     color: var(--ink);
+    overflow-wrap: anywhere;
 }
 
 .example-tag {
@@ -239,8 +241,19 @@
 .order-summary li {
     display: flex;
     justify-content: space-between;
+    gap: 12px;
     padding: 6px 0;
     font-size: 15px;
+}
+
+.order-summary li > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.order-summary li > span:last-child {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .order-summary .total {

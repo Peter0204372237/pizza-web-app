@@ -6,6 +6,7 @@
     <meta name="description" content="Customize your PizzaSlice pizza with your favorite size, dough, crust, and toppings.">
     <title>Customize Your Pizza — PizzaSlice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="/static/pizza.css">
     <link rel="stylesheet" href="/static/pizza-details.css">
@@ -17,13 +18,14 @@
 
     <header class="navbar">
         <a href="index.html" class="logo">Pizza<span>Slice</span></a>
-        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Toggle navigation">
+        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Open navigation menu"
+               aria-controls="primary-navigation" aria-expanded="false">
         <label class="nav-toggle" for="nav-toggle" aria-hidden="true">
             <span></span>
             <span></span>
             <span></span>
         </label>
-        <nav class="nav-links" aria-label="Main navigation">
+        <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
             <a href="index.html">Home</a>
             <a href="menu.html" class="active" aria-current="page">Menu</a>
             <a href="deals.html">Deals</a>
@@ -36,7 +38,7 @@
         <a class="back-to-menu" href="menu.html">← Back to the menu</a>
         <div class="details-layout" id="pizza-details-content" hidden>
             <div class="details-image-wrap">
-                <img id="pizza-image" src="" alt="">
+                <img id="pizza-image" alt="" decoding="async">
                 <span class="details-category" id="pizza-category"></span>
             </div>
             <section class="details-panel" aria-labelledby="pizza-name">

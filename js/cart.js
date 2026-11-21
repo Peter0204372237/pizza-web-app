@@ -149,22 +149,36 @@
         const toggle = document.getElementById("nav-toggle");
         if (!toggle) return;
 
+        function syncNavigationState() {
+            toggle.setAttribute("aria-expanded", String(toggle.checked));
+            toggle.setAttribute(
+                "aria-label",
+                toggle.checked ? "Close navigation menu" : "Open navigation menu"
+            );
+        }
+
+        toggle.addEventListener("change", syncNavigationState);
+        syncNavigationState();
+
         document.querySelectorAll(".nav-links a").forEach(function (link) {
             link.addEventListener("click", function () {
                 toggle.checked = false;
+                syncNavigationState();
             });
         });
 
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape" && toggle.checked) {
                 toggle.checked = false;
-                document.querySelector(".nav-toggle")?.focus();
+                syncNavigationState();
+                toggle.focus();
             }
         });
 
         window.addEventListener("resize", function () {
             if (window.innerWidth > 768) {
                 toggle.checked = false;
+                syncNavigationState();
             }
         });
     });

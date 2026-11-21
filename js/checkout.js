@@ -246,6 +246,7 @@
                 console.error("Could not clear the cart after order confirmation.", error);
             }
             content.hidden = true;
+            empty.hidden = true;
             confirmation.hidden = false;
             document.getElementById("confirmation-order-id").textContent = order.reference;
             document.getElementById("confirmation-total").textContent = money(Number(order.total));
@@ -258,6 +259,7 @@
             }
             message.textContent = cartClearWarning;
             message.classList.toggle("cart-error", Boolean(cartClearWarning));
+            document.getElementById("confirmation-title").focus();
             window.scrollTo(0, 0);
         } catch (error) {
             message.textContent = orderSubmissionUncertain

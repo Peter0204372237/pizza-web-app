@@ -368,6 +368,10 @@
         grid-template-columns: 1fr;
     }
 
+    .check-options label {
+        min-height: 44px;
+    }
+
     .option-row {
         grid-template-columns: 1fr;
     }
@@ -385,6 +389,7 @@
     }
 
     .order-actions .add-pizza-button {
+        min-height: 48px;
         padding-right: 15px;
         padding-left: 15px;
     }

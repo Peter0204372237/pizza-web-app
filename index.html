@@ -11,8 +11,9 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' 
     viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍕</text></svg>"> 
 
-    <!-- Optional free font (Poppins). Remove these two lines to use the fallback fonts. -->
+    <!-- Optional free font (Poppins); remove these links to use the fallback fonts. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
 
     <link rel="stylesheet" href="/static/pizza.css">
@@ -20,19 +21,20 @@
     <script src="/static/js/category-nav.js" defer></script>
     <script src="/static/js/banner-video.js" defer></script>
 </head>
-<body>
+<body class="home-page">
     <a class="skip-link" href="#main">Skip to main content</a>
 
     <header class="navbar">
         <a href="index.html" class="logo">Pizza<span>Slice</span></a>
 
-        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Toggle navigation">
+        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Open navigation menu"
+               aria-controls="primary-navigation" aria-expanded="false">
         <label class="nav-toggle" for="nav-toggle" aria-hidden="true">
             <span></span>
             <span></span>
             <span></span>
         </label>
-        <nav class="nav-links" aria-label="Main navigation">
+        <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
             <a href="index.html" class="active" aria-current="page">Home</a>
             <a href="menu.html">Menu</a>
             <a href="deals.html">Deals</a>
@@ -70,7 +72,8 @@
                 </div>
 
                 <div class="hero-visual">
-                    <img src="/static/Pizza-Margheritta.webp" alt="Fresh Margherita pizza topped with basil" fetchpriority="high">
+                    <img src="/static/Pizza-Margheritta.webp" alt="Fresh Margherita pizza topped with basil"
+                         fetchpriority="high" decoding="async">
                     <div class="hero-badge">
                         <span>THE HOUSE FAVORITE</span>
                         <strong>Margherita, made right.</strong>
@@ -85,20 +88,22 @@
             <h2 id="explore-heading">Popular Food Items</h2>
 
             <div class="category-nav-controls">
-                <button class="category-nav-button" type="button" aria-label="Scroll categories left" data-scroll-direction="-1">
+                <button class="category-nav-button" type="button" aria-label="Scroll categories left"
+                        aria-controls="popular-food-items" data-scroll-direction="-1">
                     <span aria-hidden="true">←</span>
                 </button>
-                <button class="category-nav-button" type="button" aria-label="Scroll categories right" data-scroll-direction="1">
+                <button class="category-nav-button" type="button" aria-label="Scroll categories right"
+                        aria-controls="popular-food-items" data-scroll-direction="1">
                     <span aria-hidden="true">→</span>
                 </button>
             </div>
 
-            <div class="category-marquee" role="region" aria-label="Popular food items">
+            <div class="category-marquee" id="popular-food-items" role="region" aria-label="Popular food items">
                 <div class="category-track">
                     <div class="category-set">
                         <a class="category-card" href="menu.html#classic">
                             <div class="category-card-image">
-                                <img src="/static/ppppp.webp" alt="Classic and traditional pizza" loading="lazy">
+                                <img src="/static/ppppp.webp" alt="Classic and traditional pizza" loading="lazy" decoding="async">
                                 <span class="category-card-badge">Pizza</span>
                             </div>
                             <div class="category-card-body">
@@ -112,7 +117,7 @@
 
                         <a class="category-card" href="menu.html#signature">
                             <div class="category-card-image">
-                                <img src="/static/pizz.jpg" alt="Gourmet and signature pizza" loading="lazy">
+                                <img src="/static/pizz.jpg" alt="Gourmet and signature pizza" loading="lazy" decoding="async">
                                 <span class="category-card-badge">Pizza</span>
                             </div>
                             <div class="category-card-body">
@@ -126,7 +131,7 @@
 
                         <a class="category-card" href="menu.html#deep-dish">
                             <div class="category-card-image">
-                                <img src="/static/Deep-Dish-Pizza-1200-x-1200.jpg" alt="Deep dish and pan pizza" loading="lazy">
+                                <img src="/static/Deep-Dish-Pizza-1200-x-1200.jpg" alt="Deep dish and pan pizza" loading="lazy" decoding="async">
                                 <span class="category-card-badge">Pizza</span>
                             </div>
                             <div class="category-card-body">
@@ -140,7 +145,7 @@
 
                         <a class="category-card" href="menu.html#meat-lovers">
                             <div class="category-card-image">
-                                <img src="/static/Meat-Lovers-Pizza-8.jpeg" alt="Meat lovers feast pizza" loading="lazy">
+                                <img src="/static/Meat-Lovers-Pizza-8.jpeg" alt="Meat lovers feast pizza" loading="lazy" decoding="async">
                                 <span class="category-card-badge">Pizza</span>
                             </div>
                             <div class="category-card-body">
@@ -154,7 +159,7 @@
 
                         <a class="category-card" href="menu.html#plant-based">
                             <div class="category-card-image">
-                                <img src="veggie.jpeg" alt="Veggie and plant-based pizza" loading="lazy">
+                                <img src="/static/veggie.jpeg" alt="Veggie and plant-based pizza" loading="lazy" decoding="async">
                                 <span class="category-card-badge">Pizza</span>
                             </div>
                             <div class="category-card-body">
@@ -177,14 +182,14 @@
                     <span class="food-motion-kicker">Fresh off the grill</span>
                     <p class="food-motion-title">Big<br>burger energy</p>
                 </div>
-                <img class="food-motion-art food-motion-burger" src="/static/flyer002.png" alt="" loading="lazy">
+                <img class="food-motion-art food-motion-burger" src="/static/flyer002.png" alt="" loading="lazy" decoding="async">
             </div>
             <div class="food-motion-panel food-motion-pizza-panel">
                 <div class="food-motion-copy">
                     <span class="food-motion-kicker">Fresh from the oven</span>
                     <p class="food-motion-title">Pizza<br>night</p>
                 </div>
-                <video class="food-motion-art food-motion-pizza" muted loop playsinline preload="metadata" poster="pepperoni-pizza.jpg" aria-hidden="true">
+                <video class="food-motion-art food-motion-pizza" muted loop playsinline preload="metadata" poster="/static/pepperoni-pizza.jpg" aria-hidden="true">
                     <source src="/static/pizza-banner-compatible.mp4" type="video/mp4">
                 </video>
             </div>
@@ -192,7 +197,7 @@
 
         <section class="container house-pick" aria-labelledby="house-pick-heading">
             <div class="house-pick-image">
-                <img src="/static/hot%20honey.jpg" alt="Hot honey pizza with golden cheese and salami" loading="lazy">
+                <img src="/static/hot%20honey.jpg" alt="Hot honey pizza with golden cheese and salami" loading="lazy" decoding="async">
                 <span class="house-pick-stamp">SWEET<br>MEETS<br>HEAT</span>
             </div>
             <div class="house-pick-copy">

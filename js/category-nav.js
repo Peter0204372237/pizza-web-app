@@ -12,6 +12,18 @@
 
     marquee.scrollLeft = 0;
 
+    function updateButtons() {
+        const maxScroll = Math.max(0, marquee.scrollWidth - marquee.clientWidth);
+        buttons.forEach(function (button) {
+            const direction = Number(button.dataset.scrollDirection);
+            const atStart = marquee.scrollLeft <= 1;
+            const atEnd = marquee.scrollLeft >= maxScroll - 1;
+            button.disabled = maxScroll <= 1 ||
+                (direction < 0 && atStart) ||
+                (direction > 0 && atEnd);
+        });
+    }
+
     function scrollCategories(direction) {
         const gap = parseFloat(window.getComputedStyle(categorySet).columnGap) || 0;
         const step = firstCard.getBoundingClientRect().width + gap;
@@ -32,4 +44,8 @@
             scrollCategories(direction);
         });
     });
+
+    marquee.addEventListener("scroll", updateButtons, { passive: true });
+    window.addEventListener("resize", updateButtons);
+    updateButtons();
 }());

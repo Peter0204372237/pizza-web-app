@@ -115,6 +115,12 @@ section {
     text-decoration: none;
 }
 
+.logo:focus-visible {
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 4px;
+    border-radius: 2px;
+}
+
 .logo span {
     color: var(--brand-dark);
 }
@@ -142,9 +148,32 @@ section {
     background-color: var(--brand-soft);
 }
 
+.nav-links a:focus-visible {
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 2px;
+}
+
+.nav-links a:active {
+    background-color: var(--brand-soft);
+}
+
 .nav-links a.active {
     color: #ffffff;
     background-color: var(--brand-dark);
+}
+
+.nav-links a[href="cart.html"] {
+    gap: 8px;
+}
+
+.nav-links a[href="cart.html"]::before {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    background-color: currentColor;
+    content: "";
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 8H6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='10' cy='20' r='1' fill='%23000'/%3E%3Ccircle cx='18' cy='20' r='1' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21 8H6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='10' cy='20' r='1' fill='%23000'/%3E%3Ccircle cx='18' cy='20' r='1' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .cart-count {
@@ -256,6 +285,8 @@ section {
 .search-box:focus-within {
     border-color: var(--brand-dark);
     box-shadow: 0 8px 28px rgba(18, 135, 90, 0.22);
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 3px;
 }
 
 .search-icon {
@@ -278,7 +309,7 @@ section {
 }
 
 .search-box input::placeholder {
-    color: #9ca3af;
+    color: var(--muted);
 }
 
 .search-btn {
@@ -297,6 +328,16 @@ section {
 .search-btn:hover {
     background-color: var(--ink);
     transform: translateY(-1px);
+}
+
+.search-btn:focus-visible {
+    outline: 3px solid var(--tomato);
+    outline-offset: 3px;
+}
+
+.search-btn:active {
+    background-color: var(--ink);
+    transform: translateY(0);
 }
 
 
@@ -337,26 +378,9 @@ section {
 }
 
 
-.explore-section {
-    margin-top: 60px;
-    text-align: left;
-}
-
-.explore-section h2 {
-    text-align: center;
-    font-size: 28px;
-    color: var(--ink);
-    margin-bottom: 32px;
-    font-weight: 700;
-}
-
 .category-card {
     position: relative;
-    height: 300px;
-    border-radius: var(--radius);
     overflow: hidden;
-    background-color: #eaebe5;
-    box-shadow: var(--shadow-sm);
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
 }
@@ -620,7 +644,6 @@ section {
 /* 11. RESPONSIVE -------------------------------------------------- */
 @media (max-width: 768px) {
     .navbar {
-        padding: 12px 20px;
         justify-content: space-between;
     }
 
@@ -678,14 +701,6 @@ section {
 
     .search-btn {
         width: 100%;
-    }
-
-    .category-card {
-        min-height: 350px;
-    }
-
-    .category-card-image {
-        height: 220px;
     }
 
     .tracker-card {
@@ -753,10 +768,6 @@ a.category-card {
     margin-top: 28px;
 }
 
-.features {
-    margin-top: 80px;
-}
-
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -797,6 +808,21 @@ a.category-card {
 .navbar {
     padding: 14px max(24px, calc((100vw - 1200px) / 2));
     box-shadow: 0 4px 18px rgba(43, 29, 26, 0.05);
+}
+
+@media (min-width: 769px) {
+    .home-page .navbar {
+        gap: 24px;
+    }
+
+    .home-page .nav-links {
+        gap: 2px;
+    }
+
+    .home-page .nav-links a {
+        padding-right: clamp(10px, 1.25vw, 18px);
+        padding-left: clamp(10px, 1.25vw, 18px);
+    }
 }
 
 .logo {
@@ -846,7 +872,7 @@ a.category-card {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: clamp(48px, 6vw, 76px);
     font-weight: 700;
-    line-height: 0.99;
+    line-height: 1.04;
     letter-spacing: -2.6px;
 }
 
@@ -858,7 +884,8 @@ a.category-card {
 .hero-copy .subtitle {
     max-width: 480px;
     margin: 0 0 26px;
-    font-size: 17px;
+    font-size: clamp(16px, 1.2vw, 18px);
+    line-height: 1.65;
 }
 
 .hero .search-box {
@@ -979,7 +1006,9 @@ a.category-card {
 }
 
 .explore-section {
-    margin-top: 28px;
+    position: relative;
+    margin-top: clamp(32px, 4vw, 56px);
+    text-align: left;
 }
 
 .section-kicker {
@@ -991,11 +1020,15 @@ a.category-card {
 .section-title {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: clamp(30px, 4vw, 40px);
+    line-height: 1.15;
     letter-spacing: -0.8px;
 }
 
 .explore-section h2 {
-    margin-bottom: 30px;
+    margin-bottom: clamp(22px, 2.5vw, 30px);
+    color: var(--ink);
+    font-weight: 700;
+    text-align: center;
 }
 
 .category-marquee {
@@ -1042,7 +1075,7 @@ a.category-card {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: 24px;
-    margin-top: 20px;
+    margin-top: clamp(24px, 3vw, 40px);
 }
 
 .food-motion-panel {
@@ -1171,13 +1204,9 @@ a.category-card {
     scroll-snap-stop: always;
 }
 
-.category-card:nth-last-child(-n + 2) {
-    grid-column: auto;
-}
-
 .category-card-image {
     position: relative;
-    height: 220px;
+    aspect-ratio: 4 / 3;
     margin: 10px;
     overflow: hidden;
     border-radius: 12px;
@@ -1188,6 +1217,7 @@ a.category-card {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
 }
 
 .category-card-badge {
@@ -1210,15 +1240,16 @@ a.category-card {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 16px 16px;
+    padding: 12px 16px 18px;
 }
 
 .category-card-body h3 {
     max-width: 14ch;
     color: var(--ink);
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 18px;
-    line-height: 1.2;
+    font-size: 19px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .category-card-details {
@@ -1233,7 +1264,8 @@ a.category-card {
 
 .category-card-price strong {
     color: var(--brand-dark);
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 800;
 }
 
 .category-card-link {
@@ -1241,12 +1273,12 @@ a.category-card {
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
-    min-height: 36px;
-    padding: 7px 10px;
+    min-height: 44px;
+    padding: 8px 12px;
     border-radius: var(--radius-pill);
     background: var(--brand-dark);
     color: #ffffff;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     transition: background-color var(--ease), transform var(--ease);
 }
@@ -1256,8 +1288,8 @@ a.category-card {
     transform: translateX(2px);
 }
 
-.explore-section {
-    position: relative;
+.category-card-link:active {
+    background: var(--tomato-dark);
 }
 
 .category-nav-controls {
@@ -1298,6 +1330,16 @@ a.category-card {
     outline-offset: 3px;
 }
 
+.category-nav-button:disabled,
+.category-nav-button:disabled:hover {
+    background: var(--border);
+    box-shadow: none;
+    color: var(--muted);
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+}
+
 @media (max-width: 600px) {
     .category-nav-controls {
         position: static;
@@ -1307,7 +1349,7 @@ a.category-card {
 }
 
 .features {
-    margin-top: 72px;
+    margin-top: clamp(56px, 6vw, 80px);
 }
 
 .feature {
@@ -1333,10 +1375,6 @@ a.category-card {
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        padding: 12px 20px;
-    }
-
     .hero {
         padding: 54px 16px 48px;
     }
@@ -1375,25 +1413,21 @@ a.category-card {
         flex: 0 0 clamp(220px, 80vw, 280px);
     }
 
+    .category-nav-button {
+        width: 44px;
+        height: 44px;
+    }
+
 }
 
 @media (max-width: 480px) {
     .hero-copy h1 {
-        font-size: 46px;
+        font-size: clamp(38px, 10.7vw, 46px);
         letter-spacing: -1.7px;
     }
 
     .hero-promises {
         gap: 8px 14px;
-    }
-
-    .category-card,
-    .category-card:nth-last-child(-n + 2) {
-        min-height: 350px;
-    }
-
-    .category-card-image {
-        height: 220px;
     }
 
     .hero-badge {
@@ -1440,12 +1474,12 @@ a.category-card {
     }
 
     .food-motion-kicker {
-        font-size: 8px;
+        font-size: clamp(9px, 2.8vw, 11px);
         letter-spacing: 0.08em;
     }
 
     .food-motion-title {
-        font-size: clamp(14px, 4vw, 20px);
+        font-size: clamp(16px, 4.2vw, 20px);
     }
 
     .food-motion-art {
@@ -1468,7 +1502,7 @@ a.category-card {
     grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
     align-items: center;
     gap: clamp(32px, 7vw, 82px);
-    margin-top: 70px;
+    margin-top: clamp(56px, 6vw, 72px);
     padding: 34px;
     border: 1px solid var(--border);
     border-radius: 18px;

@@ -130,6 +130,7 @@
         }
         link.href = "pizza-details.html?pizza=" + encodeURIComponent(pizza.slug);
         link.setAttribute("aria-label", "Customize " + pizza.name);
+        image.decoding = "async";
         image.src = pizza.image;
         image.alt = pizza.name + " pizza";
         image.addEventListener("error", function () {

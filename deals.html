@@ -6,6 +6,7 @@
     <meta name="description" content="Current PizzaSlice deals: family feasts, two-for-one classics, veggie Tuesdays and a discount on your first order.">
     <title>PizzaSlice - Deals</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="/static/pizza.css">
     <link rel="stylesheet" href="/static/deal.css">
@@ -17,13 +18,14 @@
 
     <header class="navbar">
         <a href="index.html" class="logo">Pizza<span>Slice</span></a>
-        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Toggle navigation">
+        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Open navigation menu"
+               aria-controls="primary-navigation" aria-expanded="false">
         <label class="nav-toggle" for="nav-toggle" aria-hidden="true">
             <span></span>
             <span></span>
             <span></span>
         </label>
-        <nav class="nav-links" aria-label="Main navigation">
+        <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
             <a href="index.html">Home</a>
             <a href="menu.html">Menu</a>
             <a href="deals.html" class="active" aria-current="page">Deals</a>
@@ -55,7 +57,7 @@
     </main>
 
     <template id="featured-deal-template">
-        <img class="deal-feature-img" alt="" loading="lazy">
+        <img class="deal-feature-img" alt="" loading="lazy" decoding="async">
         <div class="deal-feature-body">
             <span class="deal-label"></span>
             <h2></h2>
@@ -69,7 +71,7 @@
     </template>
     <template id="deal-card-template">
         <article class="deal-item">
-            <img alt="" loading="lazy">
+            <img alt="" loading="lazy" decoding="async">
             <div class="deal-item-body">
                 <span class="deal-chip"></span>
                 <h3></h3>

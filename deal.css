@@ -84,6 +84,7 @@
     height: 100%;
     min-height: 300px;
     object-fit: cover;
+    object-position: center;
 }
 
 .deal-feature-body {
@@ -96,8 +97,10 @@
 
 .deal-feature-body h2 {
     font-size: 32px;
+    line-height: 1.15;
     color: var(--ink);
     margin-bottom: 8px;
+    overflow-wrap: anywhere;
 }
 
 .deal-feature-body > p:not(.deal-prices) {
@@ -145,6 +148,7 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+    object-position: center;
 }
 
 .deal-item-body {
@@ -157,13 +161,16 @@
 
 .deal-item-body h3 {
     margin: 8px 0 6px;
-    font-size: 19px;
+    font-size: 20px;
+    line-height: 1.25;
     color: var(--ink);
+    overflow-wrap: anywhere;
 }
 
 .deal-item-body p {
     font-size: 14px;
     color: var(--muted);
+    overflow-wrap: anywhere;
 }
 
 .deal-item-body .deal-prices {
@@ -172,7 +179,28 @@
 }
 
 .deal-item-body .price-new {
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.deal-item-body > .btn {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.deal-feature-body > .btn {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+}
+
+.deal-item-body > .btn:active,
+.deal-feature-body > .btn:active {
+    transform: translateY(1px);
 }
 
 .deal-chip {
@@ -270,8 +298,10 @@
     }
 
     .deal-feature-img {
-        min-height: 220px;
-        max-height: 280px;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        aspect-ratio: 4 / 3;
     }
 
     .deal-feature-body {

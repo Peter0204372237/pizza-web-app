@@ -6,6 +6,7 @@
     <meta name="description" content="Explore the PizzaSlice menu: classic favorites, signature pizzas, deep dish, meat lovers, and plant-based pies baked to order.">
     <title>PizzaSlice Menu — Find your next favorite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="/static/pizza.css">
     <link rel="stylesheet" href="/static/menu.css">
@@ -16,11 +17,12 @@
     <a class="skip-link" href="#main">Skip to main content</a>
     <header class="navbar">
         <a href="index.html" class="logo">Pizza<span>Slice</span></a>
-        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Toggle navigation">
+        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Open navigation menu"
+               aria-controls="primary-navigation" aria-expanded="false">
         <label class="nav-toggle" for="nav-toggle" aria-hidden="true">
             <span></span><span></span><span></span>
         </label>
-        <nav class="nav-links" aria-label="Main navigation">
+        <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
             <a href="index.html">Home</a>
             <a href="menu.html" class="active" aria-current="page">Menu</a>
             <a href="deals.html">Deals</a>
@@ -61,7 +63,7 @@
         <article class="menu-card">
             <a class="menu-card-link" href="#" aria-label="Customize pizza"></a>
             <div class="menu-media">
-                <img alt="" loading="lazy">
+                <img alt="" loading="lazy" decoding="async">
                 <span class="menu-category"></span>
             </div>
             <div class="menu-body">

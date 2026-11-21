@@ -6,6 +6,7 @@
     <meta name="description" content="Review and update your PizzaSlice cart before checkout.">
     <title>Your Cart — PizzaSlice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="/static/pizza.css">
     <link rel="stylesheet" href="/static/cart.css">
@@ -16,14 +17,16 @@
     <a class="skip-link" href="#main">Skip to main content</a>
     <header class="navbar">
         <a href="index.html" class="logo">Pizza<span>Slice</span></a>
-        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Toggle navigation">
+        <input class="nav-checkbox" type="checkbox" id="nav-toggle" aria-label="Open navigation menu"
+               aria-controls="primary-navigation" aria-expanded="false">
         <label class="nav-toggle" for="nav-toggle" aria-hidden="true">
             <span></span><span></span><span></span>
         </label>
-        <nav class="nav-links" aria-label="Main navigation">
+        <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
             <a href="index.html">Home</a>
             <a href="menu.html">Menu</a>
             <a href="deals.html">Deals</a>
+            <a href="trackorders.html">Track Orders</a>
             <a href="cart.html" class="active" aria-current="page">Cart <span class="cart-count" data-cart-count aria-label="0 items in cart">0</span></a>
         </nav>
     </header>
@@ -40,7 +43,11 @@
             <section id="cart-items" class="cart-items" aria-label="Items in your cart"></section>
             <aside class="cart-summary" aria-labelledby="summary-title">
                 <h2 id="summary-title">Order summary</h2>
-                <p><span id="cart-item-count">0 items</span><strong id="cart-subtotal">GH₵0</strong></p>
+                <p class="cart-summary-count"><span id="cart-item-count" aria-live="polite">0 items</span></p>
+                <p class="cart-subtotal-row">
+                    <span>Subtotal</span>
+                    <strong id="cart-subtotal" aria-live="polite">GH₵0</strong>
+                </p>
                 <p class="cart-note">Delivery and payment details are confirmed at checkout.</p>
                 <a class="cart-primary cart-checkout-link" href="checkout.html">Continue to checkout</a>
                 <a class="cart-secondary" href="menu.html">Add more pizzas</a>

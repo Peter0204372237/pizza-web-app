@@ -22,6 +22,7 @@
 
     function setOfferContent(container, deal, titleSelector, badgeSelector) {
         const image = container.querySelector("img");
+        image.decoding = "async";
         image.src = deal.image;
         image.alt = deal.image_alt;
         container.querySelector(titleSelector).textContent = deal.title;
@@ -65,6 +66,7 @@
         if (featuredDeal) {
             featured.replaceChildren(featuredTemplate.content.cloneNode(true));
             const image = featured.querySelector(".deal-feature-img");
+            image.decoding = "async";
             image.src = featuredDeal.image;
             image.alt = featuredDeal.image_alt;
             const badge = featured.querySelector(".deal-label");
