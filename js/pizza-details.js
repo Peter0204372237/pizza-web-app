@@ -22,6 +22,13 @@
         const pizza = await response.json();
         details.hidden = false;
         document.title = `${pizza.name} — Customize Your Pizza | PizzaSlice`;
+        const descriptionMeta = document.querySelector('meta[name="description"]');
+        if (descriptionMeta) {
+            const description = `Customize ${pizza.name}: ${pizza.description}`.replace(/\s+/g, " ").trim();
+            descriptionMeta.content = description.length > 160
+                ? description.slice(0, 157).trimEnd() + "..."
+                : description;
+        }
         document.getElementById("pizza-name").textContent = pizza.name;
         document.getElementById("pizza-image").src = pizza.image;
         document.getElementById("pizza-image").alt = `${pizza.name} pizza`;

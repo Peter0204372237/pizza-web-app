@@ -33,7 +33,9 @@
     function renderOrder(order) {
         document.getElementById("result-title").textContent = "Order " + order.reference;
         const statusOutput = document.getElementById("order-status");
-        statusOutput.textContent = order.status_label;
+        if (statusOutput.textContent !== order.status_label) {
+            statusOutput.textContent = order.status_label;
+        }
         statusOutput.className = "eta";
 
         const timeline = document.getElementById("order-timeline");

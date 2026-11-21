@@ -183,6 +183,7 @@
             const card = createCard(pizza);
             grid.append(card);
         });
+        grid.setAttribute("aria-busy", "false");
         refreshChoices();
         applyFilters();
         if (selectedCategory !== null) {
@@ -253,6 +254,7 @@
             renderCatalog(data.pizzas, data.categories);
         })
         .catch(function (error) {
+            grid.setAttribute("aria-busy", "false");
             countOutput.textContent = "Menu unavailable";
             feedback.textContent = error.message || "We couldn’t load the menu. Please refresh and try again.";
             feedback.classList.add("cart-error");
