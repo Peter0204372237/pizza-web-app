@@ -1190,10 +1190,6 @@ a.category-card {
     object-fit: cover;
 }
 
-.category-set .category-card:last-child .category-card-image img {
-    object-fit: contain;
-}
-
 .category-card-badge {
     position: absolute;
     top: 12px;
