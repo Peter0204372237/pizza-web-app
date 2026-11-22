@@ -35,6 +35,7 @@ EXTRA_TOPPINGS = {
 }
 PAGE_NAMES = {
     "cart.html",
+    "categories.html",
     "checkout.html",
     "deals.html",
     "index.html",
