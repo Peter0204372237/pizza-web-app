@@ -73,6 +73,33 @@ class Pizza(models.Model):
         return getattr(self, price_fields[size])
 
 
+class MenuItem(models.Model):
+    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(
+        Category,
+        related_name="menu_items",
+        on_delete=models.PROTECT,
+    )
+    description = models.TextField()
+    image = models.CharField(
+        max_length=200,
+        help_text="Static image filename/path or an absolute image URL.",
+    )
+    price = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Deal(models.Model):
     class PromotionType(models.TextChoices):
         NONE = "none", "Informational only"
@@ -180,7 +207,18 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
-    pizza = models.ForeignKey(Pizza, on_delete=models.PROTECT)
+    pizza = models.ForeignKey(
+        Pizza,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+    menu_item = models.ForeignKey(
+        MenuItem,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     pizza_name = models.CharField(max_length=100)
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=7, decimal_places=2)

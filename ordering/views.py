@@ -8,6 +8,7 @@ from urllib.parse import unquote
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.db import transaction
+from django.db.models import Q
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
@@ -15,7 +16,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import Category, Deal, Order, OrderItem, Pizza
+from .models import Category, Deal, MenuItem, Order, OrderItem, Pizza
 
 
 PIZZA_SIZES = {"S", "M", "L", "XL"}
@@ -72,6 +73,18 @@ def serialize_pizza(pizza):
             size: str(pizza.price_for_size(size))
             for size in ("S", "M", "L", "XL")
         },
+    }
+
+
+def serialize_menu_item(item):
+    return {
+        "slug": item.slug,
+        "name": item.name,
+        "category": item.category.name,
+        "category_slug": item.category.slug,
+        "description": item.description,
+        "image": static_asset_url(item.image),
+        "price": str(item.price),
     }
 
 
@@ -132,14 +145,25 @@ def serialize_order(order):
 @require_GET
 def pizza_list(request):
     pizzas = Pizza.objects.filter(is_active=True).select_related("category")
-    categories = Category.objects.filter(pizzas__is_active=True).distinct()
+    menu_items = MenuItem.objects.filter(is_active=True).select_related("category")
+    categories = Category.objects.filter(
+        Q(pizzas__is_active=True) | Q(menu_items__is_active=True)
+    ).distinct()
+    menu_item_categories = Category.objects.filter(
+        menu_items__is_active=True
+    ).distinct()
     return JsonResponse(
         {
             "categories": [
                 {"name": category.name, "slug": category.slug}
                 for category in categories
             ],
+            "menu_item_categories": [
+                {"name": category.name, "slug": category.slug}
+                for category in menu_item_categories
+            ],
             "pizzas": [serialize_pizza(pizza) for pizza in pizzas],
+            "menu_items": [serialize_menu_item(item) for item in menu_items],
         }
     )
 
@@ -192,6 +216,30 @@ def prepare_item(raw_item):
     if not isinstance(raw_item, dict):
         raise ValueError("Each cart item must be an object.")
 
+    quantity = raw_item.get("quantity")
+    if isinstance(quantity, bool) or not isinstance(quantity, int) or not 1 <= quantity <= 99:
+        raise ValueError("Choose a quantity between 1 and 99.")
+
+    menu_item_slug = raw_item.get("menuItemSlug")
+    if menu_item_slug is not None:
+        if not isinstance(menu_item_slug, str) or not menu_item_slug:
+            raise ValueError("Choose a valid menu item.")
+        menu_item = MenuItem.objects.filter(
+            slug=menu_item_slug,
+            is_active=True,
+        ).first()
+        if menu_item is None:
+            raise ValueError("A menu item in your cart is no longer available.")
+        if menu_item.price < 0:
+            raise ValueError("This menu item has an invalid price and cannot be ordered.")
+        return {
+            "pizza": None,
+            "menu_item": menu_item,
+            "quantity": quantity,
+            "unit_price": menu_item.price,
+            "options": {},
+        }
+
     slug = raw_item.get("slug")
     if isinstance(slug, str) and slug:
         pizza = Pizza.objects.filter(slug=slug, is_active=True).first()
@@ -202,10 +250,6 @@ def prepare_item(raw_item):
         pizza = Pizza.objects.filter(name__iexact=name.strip(), is_active=True).first()
     if pizza is None:
         raise ValueError("A pizza in your cart is no longer available.")
-
-    quantity = raw_item.get("quantity")
-    if isinstance(quantity, bool) or not isinstance(quantity, int) or not 1 <= quantity <= 99:
-        raise ValueError("Choose a quantity between 1 and 99.")
 
     size = raw_item.get("size", "S")
     if not isinstance(size, str) or size not in PIZZA_SIZES:
@@ -238,6 +282,7 @@ def prepare_item(raw_item):
     )
     return {
         "pizza": pizza,
+        "menu_item": None,
         "quantity": quantity,
         "unit_price": unit_price,
         "options": {
@@ -261,9 +306,9 @@ def is_promotion_day(deal, today):
 def is_standard_small(item):
     options = item["options"]
     return (
-        options["size"] == "S"
-        and options["crust"] == "Original"
-        and not options["extraToppings"]
+        options.get("size") == "S"
+        and options.get("crust") == "Original"
+        and not options.get("extraToppings")
     )
 
 
@@ -385,8 +430,16 @@ def quote_order(request):
             "total": str(subtotal - discount_total),
             "items": [
                 {
-                    "pizza": item["pizza"].name,
-                    "size": item["options"]["size"],
+                    "pizza": (
+                        item["pizza"].name
+                        if item["pizza"] is not None
+                        else item["menu_item"].name
+                    ),
+                    **(
+                        {"size": item["options"]["size"]}
+                        if "size" in item["options"]
+                        else {}
+                    ),
                     "quantity": item["quantity"],
                     "unit_price": str(item["unit_price"]),
                     "line_total": str(item["unit_price"] * item["quantity"]),
@@ -450,7 +503,12 @@ def create_order(request):
                 OrderItem(
                     order=order,
                     pizza=item["pizza"],
-                    pizza_name=item["pizza"].name,
+                    menu_item=item["menu_item"],
+                    pizza_name=(
+                        item["pizza"].name
+                        if item["pizza"] is not None
+                        else item["menu_item"].name
+                    ),
                     quantity=item["quantity"],
                     unit_price=item["unit_price"],
                     options=item["options"],

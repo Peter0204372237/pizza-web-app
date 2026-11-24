@@ -43,7 +43,7 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-In Django admin, add and manage menu categories under **Categories**, then assign each pizza to one of them. Categories with active pizzas appear as filters on the menu automatically. Manage offers under **Deals**. Supported automatic promotion types are fixed-price bundles, fixed-price pairs from a category, and fixed-price individual pizzas, optionally restricted to Tuesday or the weekend. At most one eligible offer is applied per order; automatic promotions require small pizzas, original crust, and no extra toppings. Student verification remains manual. Set each promotion's displayed offer text and its promotion price to the same amount. Checkout gets an authoritative price quote from the server, and orders store their subtotal, applied discount, and final total. Each pizza has editable Small, Medium, Large, and Extra Large prices. The size-price migration preserves the existing small price and carries forward the previous size increments for existing pizzas.
+In Django admin, manage pizzas under **Pizzas** and single-price products such as loaded fries, drinks, weekend-promo items, and combos under **Menu items**. The categories **Loaded Fries**, **Drinks**, **Weekend Promo**, and **Combo** are available for assignment; active menu-item categories appear as menu filters automatically. Pizzas continue to use their existing size and customization options. Non-pizza menu items use the single price set in Admin and can be added by quantity. **Weekend Promo** is a menu category only; it does not automatically apply a discount. Manage offers under **Deals**. Supported automatic promotion types are fixed-price bundles, fixed-price pairs from a category, and fixed-price individual pizzas, optionally restricted to Tuesday or the weekend. At most one eligible offer is applied per order; automatic promotions require small pizzas, original crust, and no extra toppings. Student verification remains manual. Set each promotion's displayed offer text and its promotion price to the same amount. Checkout gets an authoritative price quote from the server, and orders store their subtotal, applied discount, and final total. Each pizza has editable Small, Medium, Large, and Extra Large prices. The size-price migration preserves the existing small price and carries forward the previous size increments for existing pizzas.
 
 Start Django:
 
@@ -55,7 +55,7 @@ Open `http://127.0.0.1:8000/` to use the storefront. Use `http://127.0.0.1:8000/
 
 ## API
 
-- `GET /api/pizzas/` — active menu and size prices.
+- `GET /api/pizzas/` — active pizzas, single-price menu items, and their categories.
 - `GET /api/deals/` — active offers and their display/promotion details.
 - `POST /api/orders/quote/` — calculate server-side item prices and applicable offer before checkout.
 - `GET /api/pizzas/<slug>/` — one pizza and its customization data.

@@ -50,6 +50,7 @@
         return items.map(function (item) {
             return {
                 slug: item.slug,
+                menuItemSlug: item.menuItemSlug,
                 pizza: item.pizza,
                 quantity: item.quantity,
                 size: item.size,
@@ -185,7 +186,7 @@
             const items = window.PizzaCart.getItems();
             if (!items.length) {
                 renderSummary();
-                message.textContent = "Your cart is empty. Add a pizza before placing your order.";
+                message.textContent = "Your cart is empty. Add a menu item before placing your order.";
                 message.classList.add("cart-error");
                 return;
             }

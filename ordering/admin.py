@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from .models import Category, Deal, Order, OrderItem, Pizza
+from .models import Category, Deal, MenuItem, Order, OrderItem, Pizza
 
 
 @admin.register(Category)
@@ -131,11 +131,28 @@ class PizzaAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(MenuItem)
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "price", "is_active")
+    list_filter = ("category", "is_active")
+    search_fields = ("name", "slug", "description")
+    list_editable = ("price", "is_active")
+    prepopulated_fields = {"slug": ("name",)}
+    fields = ("name", "slug", "category", "description", "image", "price", "is_active")
+
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     can_delete = False
-    readonly_fields = ("pizza", "pizza_name", "quantity", "unit_price", "options")
+    readonly_fields = (
+        "pizza",
+        "menu_item",
+        "pizza_name",
+        "quantity",
+        "unit_price",
+        "options",
+    )
 
 
 @admin.register(Order)

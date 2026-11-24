@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore the PizzaSlice menu: classic favorites, signature pizzas, deep dish, meat lovers, and plant-based pies baked to order.">
+    <meta name="description" content="Explore pizzas, loaded fries, drinks, weekend promos, and combo items on the PizzaSlice menu.">
     <title>PizzaSlice Menu — Find your next favorite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,9 +35,9 @@
     <main id="main">
         <section class="menu-hero">
             <div class="menu-hero-inner container">
-                <p class="menu-eyebrow">THE PIZZAS</p>
+                <p class="menu-eyebrow">THE MENU</p>
                 <h1>Every craving has <span>a slice.</span></h1>
-                <p class="subtitle">Fresh dough, bold toppings, baked to order. Pick your mood; we’ll bring the good stuff.</p>
+                <p class="subtitle">Freshly made favorites, chilled drinks, and more. Pick your mood; we’ll bring the good stuff.</p>
                 <a class="menu-hero-link" href="deals.html">Hungry for a deal? <span>See what’s on special ↗</span></a>
             </div>
         </section>
@@ -55,12 +55,12 @@
             <div class="menu-filters" id="menu-filters" role="group" aria-label="Filter by category">
             </div>
 
-            <section class="menu-grid" id="menu-grid" aria-label="Pizzas" aria-busy="true"></section>
-            <p id="menu-empty" hidden>No pizzas match the selected category or search.</p>
+            <section class="menu-grid" id="menu-grid" aria-label="Menu items" aria-busy="true"></section>
+            <p id="menu-empty" hidden>No menu items match the selected category or search.</p>
         </div>
     </main>
 
-    <template id="pizza-card-template">
+    <template id="menu-card-template">
         <article class="menu-card">
             <a class="menu-card-link" href="#" aria-label="Customize pizza"></a>
             <div class="menu-media">

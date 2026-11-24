@@ -46,7 +46,8 @@
 
     function itemKey(item) {
         return JSON.stringify([
-            item.slug || item.pizza,
+            item.productType === "menu_item" ? "menu_item" : "pizza",
+            item.menuItemSlug || item.slug || item.pizza,
             item.size || "",
             item.dough || "",
             item.crust || "",
@@ -68,7 +69,7 @@
         } else {
             const combinedQuantity = items[existingIndex].quantity + incoming.quantity;
             if (combinedQuantity > 99) {
-                throw new Error("You can add up to 99 of the same pizza.");
+                throw new Error("You can add up to 99 of the same item.");
             }
             items[existingIndex].quantity = combinedQuantity;
             items[existingIndex].price = items[existingIndex].unitPrice * combinedQuantity;
