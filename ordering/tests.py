@@ -43,6 +43,20 @@ class FrontendAssetTests(SimpleTestCase):
             self.assertEqual(b"".join(response.streaming_content), content)
             response.close()
 
+    def test_asset_is_served_when_finder_returns_multiple_paths(self):
+        content = b"sample favicon"
+
+        with tempfile.TemporaryDirectory() as directory:
+            asset_path = Path(directory, "favicon.ico")
+            asset_path.write_bytes(content)
+
+            with patch("ordering.views.finders.find", return_value=[str(asset_path)]):
+                response = self.client.get("/favicon.ico")
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(b"".join(response.streaming_content), content)
+            response.close()
+
 
 class OrderingApiTests(TestCase):
     def setUp(self):

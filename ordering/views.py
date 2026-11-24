@@ -572,6 +572,8 @@ def frontend_asset(request, asset_path):
         asset_path = asset_path[len("static/"):]
 
     asset_file = finders.find(asset_path)
+    if isinstance(asset_file, (list, tuple)):
+        asset_file = next(iter(asset_file), None)
     if asset_file is None:
         raise Http404
 
