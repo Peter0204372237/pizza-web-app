@@ -6,9 +6,11 @@ from .models import Category, Deal, MenuItem, Order, OrderItem, Pizza
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
+    list_display = ("name", "parent", "slug")
+    list_filter = ("parent",)
     search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
+    autocomplete_fields = ("parent",)
 
 
 class DealAdminForm(forms.ModelForm):
@@ -53,6 +55,12 @@ class PizzaAdminForm(forms.ModelForm):
     class Meta:
         model = Pizza
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["category"].queryset = Category.objects.filter(
+            parent__slug="pizza"
+        )
 
     def clean_ingredients(self):
         ingredients = self.cleaned_data["ingredients"]

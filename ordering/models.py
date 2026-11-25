@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -11,6 +12,13 @@ def new_order_reference():
 class Category(models.Model):
     name = models.CharField(max_length=40, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
+    parent = models.ForeignKey(
+        "self",
+        related_name="children",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ["name"]
@@ -18,6 +26,13 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        if self.parent_id == self.pk and self.pk is not None:
+            raise ValidationError({"parent": "A category cannot be its own parent."})
+        if self.parent and self.parent.parent_id is not None:
+            raise ValidationError({"parent": "Categories can only be one level deep."})
 
 
 class Pizza(models.Model):

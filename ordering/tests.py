@@ -113,6 +113,11 @@ class OrderingApiTests(TestCase):
             {"name": self.pizza.category.name, "slug": self.pizza.category.slug},
             response.json()["categories"],
         )
+        self.assertIn(
+            {"name": "Pizza", "slug": "pizza"},
+            response.json()["categories"],
+        )
+        self.assertEqual(self.pizza.category.parent.slug, "pizza")
         margherita = next(
             pizza
             for pizza in response.json()["pizzas"]
@@ -267,6 +272,9 @@ class OrderingApiTests(TestCase):
         )
 
     def test_pizza_admin_form_rejects_negative_prices_and_invalid_ingredients(self):
+        category_choices = PizzaAdminForm().fields["category"].queryset
+        self.assertTrue(category_choices.filter(pk=self.pizza.category_id).exists())
+        self.assertFalse(category_choices.filter(slug="pizza").exists())
         form = PizzaAdminForm(
             data={
                 "slug": self.pizza.slug,
@@ -381,6 +389,25 @@ class OrderingApiTests(TestCase):
         self.assertEqual(order.discounts[0]["title"], "Two Classics")
         self.assertEqual(created.json()["discount_total"], "5.00")
         self.assertEqual(created.json()["subtotal"], "40.00")
+
+    def test_parent_category_pair_includes_its_pizza_subcategories(self):
+        deal = Deal.objects.get(title="Two Classics")
+        deal.eligible_category = Category.objects.get(slug="pizza")
+        deal.save(update_fields=("eligible_category",))
+
+        quote = self.post_json(
+            "/api/orders/quote/",
+            {
+                "items": [
+                    self.standard_item("margherita"),
+                    self.standard_item("four-cheese"),
+                ]
+            },
+        )
+
+        self.assertEqual(quote.status_code, 200)
+        self.assertEqual(quote.json()["discount_total"], "5.00")
+        self.assertEqual(quote.json()["discounts"][0]["title"], "Two Classics")
 
     def test_family_feast_requires_all_three_standard_pizzas(self):
         self.payload["items"] = [

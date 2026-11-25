@@ -147,7 +147,10 @@ def pizza_list(request):
     pizzas = Pizza.objects.filter(is_active=True).select_related("category")
     menu_items = MenuItem.objects.filter(is_active=True).select_related("category")
     categories = Category.objects.filter(
-        Q(pizzas__is_active=True) | Q(menu_items__is_active=True)
+        Q(pizzas__is_active=True)
+        | Q(menu_items__is_active=True)
+        | Q(children__pizzas__is_active=True)
+        | Q(children__menu_items__is_active=True)
     ).distinct()
     menu_item_categories = Category.objects.filter(
         menu_items__is_active=True
@@ -323,12 +326,17 @@ def bundle_regular_price(items, eligible_pizzas):
 
 
 def category_pair_regular_price(items, deal):
+    eligible_category_ids = set()
+    if deal.eligible_category_id is not None:
+        eligible_category_ids.add(deal.eligible_category_id)
+        eligible_category_ids.update(
+            child.pk for child in deal.eligible_category.children.all()
+        )
     eligible_units = [
         item["pizza"].price_for_size("S")
         for item in items
         if is_standard_small(item)
-        and deal.eligible_category_id is not None
-        and item["pizza"].category_id == deal.eligible_category_id
+        and item["pizza"].category_id in eligible_category_ids
         for _ in range(item["quantity"])
     ]
     if len(eligible_units) < 2:
@@ -366,7 +374,7 @@ def calculate_order_discount(items):
     for deal in (
         Deal.objects.filter(is_active=True)
         .exclude(promotion_type=Deal.PromotionType.NONE)
-        .prefetch_related("eligible_pizzas")
+        .prefetch_related("eligible_pizzas", "eligible_category__children")
         .select_related("eligible_category")
     ):
         if (
