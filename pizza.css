@@ -401,6 +401,14 @@ section {
     transform: scale(1.08);
 }
 
+.category-card .drink-category-image {
+    object-fit: contain;
+}
+
+.category-card:hover .drink-category-image {
+    transform: none;
+}
+
 .card-overlay {
     position: absolute;
     inset: 0;

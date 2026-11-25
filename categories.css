@@ -76,6 +76,14 @@
     transform: scale(1.04);
 }
 
+.cat-image img.drink-category-image {
+    object-fit: contain;
+}
+
+.cat-card:hover .cat-image img.drink-category-image {
+    transform: none;
+}
+
 .cat-image-placeholder {
     display: grid;
     place-items: center;
