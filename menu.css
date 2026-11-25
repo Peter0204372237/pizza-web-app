@@ -198,19 +198,21 @@
 
 .menu-media {
     position: relative;
-    height: clamp(190px, 22vw, 260px);
+    aspect-ratio: 4 / 3;
     background: #e5e7eb;
     overflow: hidden;
 }
 
 .menu-media img {
-    display: block;
     width: 100%;
     height: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
+    transition: transform 0.5s ease;
+}
+
+.menu-card:hover .menu-media img {
+    transform: scale(1.05);
 }
 
 .menu-card-loading {
@@ -266,7 +268,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding: 18px 16px 16px;
+    padding: 16px;
 }
 
 .menu-body h3 {
