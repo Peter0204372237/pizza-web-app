@@ -109,15 +109,30 @@ class OrderingApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["pizzas"]), 17)
-        self.assertIn(
-            {"name": self.pizza.category.name, "slug": self.pizza.category.slug},
-            response.json()["categories"],
+        api_categories = {
+            (category["name"], category["slug"])
+            for category in response.json()["categories"]
+        }
+        self.assertEqual(
+            api_categories,
+            {
+                ("Pizza", "pizza"),
+                ("Loaded Fries", "loaded-fries"),
+                ("Drinks", "drinks"),
+                ("Weekend Promo", "weekend-promo"),
+                ("Combo", "combo"),
+            },
         )
-        self.assertIn(
-            {"name": "Pizza", "slug": "pizza"},
-            response.json()["categories"],
+        self.assertEqual(
+            set(Category.objects.values_list("slug", flat=True)),
+            {"pizza", "loaded-fries", "drinks", "weekend-promo", "combo"},
         )
-        self.assertEqual(self.pizza.category.parent.slug, "pizza")
+        self.assertEqual(
+            Pizza.objects.filter(category__slug="pizza").count(),
+            Pizza.objects.count(),
+        )
+        self.assertEqual(self.pizza.category.slug, "pizza")
+        self.assertIsNone(self.pizza.category.parent_id)
         margherita = next(
             pizza
             for pizza in response.json()["pizzas"]
@@ -142,23 +157,15 @@ class OrderingApiTests(TestCase):
 
         self.assertEqual(margherita["image"], "/static/hot%20honey.jpg")
 
-    def test_admin_created_category_is_available_in_menu_api(self):
-        category = Category.objects.create(name="Limited Time", slug="limited-time")
-        self.pizza.category = category
-        self.pizza.save(update_fields=["category"])
+    def test_catalog_api_exposes_only_the_five_main_categories(self):
+        Category.objects.create(name="Limited Time", slug="limited-time")
 
         response = self.client.get("/api/pizzas/")
-        catalog_pizza = next(
-            pizza
-            for pizza in response.json()["pizzas"]
-            if pizza["slug"] == self.pizza.slug
-        )
 
-        self.assertIn(
-            {"name": "Limited Time", "slug": "limited-time"},
-            response.json()["categories"],
+        self.assertEqual(
+            {category["slug"] for category in response.json()["categories"]},
+            {"pizza", "loaded-fries", "drinks", "weekend-promo", "combo"},
         )
-        self.assertEqual(catalog_pizza["category_slug"], "limited-time")
 
     def test_active_admin_menu_items_are_listed_under_their_category(self):
         category = Category.objects.get(slug="loaded-fries")
@@ -274,7 +281,7 @@ class OrderingApiTests(TestCase):
     def test_pizza_admin_form_rejects_negative_prices_and_invalid_ingredients(self):
         category_choices = PizzaAdminForm().fields["category"].queryset
         self.assertTrue(category_choices.filter(pk=self.pizza.category_id).exists())
-        self.assertFalse(category_choices.filter(slug="pizza").exists())
+        self.assertEqual(list(category_choices.values_list("slug", flat=True)), ["pizza"])
         form = PizzaAdminForm(
             data={
                 "slug": self.pizza.slug,
@@ -306,7 +313,7 @@ class OrderingApiTests(TestCase):
             offer_text="GH₵18",
             previous_price=Decimal("20.00"),
             button_text="View pizza",
-            button_url="menu.html#classic",
+            button_url="menu.html#pizza",
             is_featured=True,
         )
         Deal.objects.create(
@@ -347,7 +354,7 @@ class OrderingApiTests(TestCase):
         for slug, prices in expected_prices.items():
             with self.subTest(slug=slug):
                 self.assertIn(slug, pizzas)
-                self.assertEqual(pizzas[slug]["category"], "Signature")
+                self.assertEqual(pizzas[slug]["category"], "Pizza")
                 self.assertEqual(
                     pizzas[slug]["prices"],
                     dict(zip(("S", "M", "L", "XL"), prices)),
@@ -390,24 +397,26 @@ class OrderingApiTests(TestCase):
         self.assertEqual(created.json()["discount_total"], "5.00")
         self.assertEqual(created.json()["subtotal"], "40.00")
 
-    def test_parent_category_pair_includes_its_pizza_subcategories(self):
+    def test_two_classics_uses_its_explicit_eligible_pizzas(self):
         deal = Deal.objects.get(title="Two Classics")
-        deal.eligible_category = Category.objects.get(slug="pizza")
-        deal.save(update_fields=("eligible_category",))
+        self.assertEqual(
+            set(deal.eligible_pizzas.values_list("slug", flat=True)),
+            {"margherita", "pepperoni-classic", "four-cheese"},
+        )
 
         quote = self.post_json(
             "/api/orders/quote/",
             {
                 "items": [
                     self.standard_item("margherita"),
-                    self.standard_item("four-cheese"),
+                    self.standard_item("truffle-mushroom"),
                 ]
             },
         )
 
         self.assertEqual(quote.status_code, 200)
-        self.assertEqual(quote.json()["discount_total"], "5.00")
-        self.assertEqual(quote.json()["discounts"][0]["title"], "Two Classics")
+        self.assertEqual(quote.json()["discount_total"], "0.00")
+        self.assertEqual(quote.json()["discounts"], [])
 
     def test_family_feast_requires_all_three_standard_pizzas(self):
         self.payload["items"] = [

@@ -8,7 +8,6 @@ from urllib.parse import unquote
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.db import transaction
-from django.db.models import Q
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
@@ -20,6 +19,13 @@ from .models import Category, Deal, MenuItem, Order, OrderItem, Pizza
 
 
 PIZZA_SIZES = {"S", "M", "L", "XL"}
+MAIN_CATEGORY_SLUGS = (
+    "pizza",
+    "loaded-fries",
+    "drinks",
+    "weekend-promo",
+    "combo",
+)
 DOUGH_CHOICES = {"Classic", "Thin and crispy", "Whole wheat"}
 CRUST_SURCHARGES = {
     "Original": Decimal("0.00"),
@@ -144,17 +150,15 @@ def serialize_order(order):
 
 @require_GET
 def pizza_list(request):
-    pizzas = Pizza.objects.filter(is_active=True).select_related("category")
-    menu_items = MenuItem.objects.filter(is_active=True).select_related("category")
-    categories = Category.objects.filter(
-        Q(pizzas__is_active=True)
-        | Q(menu_items__is_active=True)
-        | Q(children__pizzas__is_active=True)
-        | Q(children__menu_items__is_active=True)
-    ).distinct()
-    menu_item_categories = Category.objects.filter(
-        menu_items__is_active=True
-    ).distinct()
+    pizzas = Pizza.objects.filter(
+        is_active=True,
+        category__slug="pizza",
+    ).select_related("category")
+    menu_items = MenuItem.objects.filter(
+        is_active=True,
+        category__slug__in=MAIN_CATEGORY_SLUGS,
+    ).select_related("category")
+    categories = Category.objects.filter(slug__in=MAIN_CATEGORY_SLUGS)
     return JsonResponse(
         {
             "categories": [
@@ -163,7 +167,7 @@ def pizza_list(request):
             ],
             "menu_item_categories": [
                 {"name": category.name, "slug": category.slug}
-                for category in menu_item_categories
+                for category in categories
             ],
             "pizzas": [serialize_pizza(pizza) for pizza in pizzas],
             "menu_items": [serialize_menu_item(item) for item in menu_items],
@@ -326,17 +330,14 @@ def bundle_regular_price(items, eligible_pizzas):
 
 
 def category_pair_regular_price(items, deal):
-    eligible_category_ids = set()
-    if deal.eligible_category_id is not None:
-        eligible_category_ids.add(deal.eligible_category_id)
-        eligible_category_ids.update(
-            child.pk for child in deal.eligible_category.children.all()
-        )
+    eligible_pizza_ids = {
+        pizza.pk for pizza in deal.eligible_pizzas.all()
+    }
     eligible_units = [
         item["pizza"].price_for_size("S")
         for item in items
         if is_standard_small(item)
-        and item["pizza"].category_id in eligible_category_ids
+        and item["pizza"].pk in eligible_pizza_ids
         for _ in range(item["quantity"])
     ]
     if len(eligible_units) < 2:
@@ -374,8 +375,7 @@ def calculate_order_discount(items):
     for deal in (
         Deal.objects.filter(is_active=True)
         .exclude(promotion_type=Deal.PromotionType.NONE)
-        .prefetch_related("eligible_pizzas", "eligible_category__children")
-        .select_related("eligible_category")
+        .prefetch_related("eligible_pizzas")
     ):
         if (
             deal.promotion_price is None

@@ -119,7 +119,7 @@ class Deal(models.Model):
     class PromotionType(models.TextChoices):
         NONE = "none", "Informational only"
         BUNDLE = "bundle", "Fixed-price bundle"
-        CATEGORY_PAIR = "category_pair", "Fixed price for two category pizzas"
+        CATEGORY_PAIR = "category_pair", "Fixed price for two eligible pizzas"
         PIZZA_PRICE = "pizza_price", "Fixed price for one pizza"
 
     class Schedule(models.TextChoices):
@@ -160,13 +160,6 @@ class Deal(models.Model):
         max_length=10,
         choices=Schedule.choices,
         default=Schedule.ANY_DAY,
-    )
-    eligible_category = models.ForeignKey(
-        Category,
-        related_name="deals",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
     )
     eligible_pizzas = models.ManyToManyField(
         Pizza,

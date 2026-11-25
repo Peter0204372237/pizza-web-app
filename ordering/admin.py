@@ -6,11 +6,16 @@ from .models import Category, Deal, MenuItem, Order, OrderItem, Pizza
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "parent", "slug")
-    list_filter = ("parent",)
+    list_display = ("name", "slug")
+    fields = ("name", "slug")
+    readonly_fields = ("name", "slug")
     search_fields = ("name", "slug")
-    prepopulated_fields = {"slug": ("name",)}
-    autocomplete_fields = ("parent",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class DealAdminForm(forms.ModelForm):
@@ -22,16 +27,19 @@ class DealAdminForm(forms.ModelForm):
         cleaned_data = super().clean()
         promotion_type = cleaned_data.get("promotion_type")
         promotion_price = cleaned_data.get("promotion_price")
-        eligible_category = cleaned_data.get("eligible_category")
         eligible_pizzas = cleaned_data.get("eligible_pizzas")
 
         if promotion_type != Deal.PromotionType.NONE and promotion_price is None:
             self.add_error("promotion_price", "Enter a fixed price for this promotion.")
         if (
             promotion_type == Deal.PromotionType.CATEGORY_PAIR
-            and eligible_category is None
+            and eligible_pizzas is not None
+            and eligible_pizzas.count() < 2
         ):
-            self.add_error("eligible_category", "Choose the category for this offer.")
+            self.add_error(
+                "eligible_pizzas",
+                "Choose at least two eligible pizzas for this offer.",
+            )
         if (
             promotion_type == Deal.PromotionType.BUNDLE
             and eligible_pizzas is not None
@@ -59,7 +67,8 @@ class PizzaAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["category"].queryset = Category.objects.filter(
-            parent__slug="pizza"
+            slug="pizza",
+            parent__isnull=True,
         )
 
     def clean_ingredients(self):
@@ -103,12 +112,11 @@ class DealAdmin(admin.ModelAdmin):
                     "promotion_type",
                     "promotion_price",
                     "promotion_schedule",
-                    "eligible_category",
                     "eligible_pizzas",
                 ),
                 "description": (
                     "Only one eligible automatic offer applies per order. "
-                    "Bundles, category pairs, and individual-pizza offers require "
+                    "Bundles, eligible-pizza pairs, and individual-pizza offers require "
                     "small pizzas with original crust and no extra toppings. "
                     "Set the display offer text and promotion price to the same amount."
                 ),
