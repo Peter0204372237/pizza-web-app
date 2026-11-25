@@ -86,7 +86,8 @@
         order.items.forEach(function (item) {
             const row = document.createElement("li");
             const name = document.createElement("span");
-            name.textContent = item.quantity + " × " + item.pizza + " (" + item.size + ")";
+            name.textContent = item.quantity + " × " + item.pizza +
+                (item.size ? " (" + item.size + ")" : "");
             const price = document.createElement("span");
             price.textContent = money(item.line_total);
             row.append(name, price);

@@ -204,11 +204,11 @@ class OrderingApiTests(TestCase):
 
     def test_single_price_menu_item_can_be_quoted_and_ordered(self):
         item = MenuItem.objects.create(
-            slug="orange-drink",
-            name="Orange Drink",
-            category=Category.objects.get(slug="drinks"),
-            description="Chilled orange drink.",
-            image="orange-drink.jpg",
+            slug="loaded-fries-test",
+            name="Loaded Fries",
+            category=Category.objects.get(slug="loaded-fries"),
+            description="Crispy fries with cheese.",
+            image="loaded-fries.jpg",
             price=Decimal("7.50"),
         )
         self.payload["items"] = [
@@ -228,7 +228,7 @@ class OrderingApiTests(TestCase):
         self.assertEqual(quote.status_code, 200)
         self.assertEqual(quote.json()["subtotal"], "15.00")
         self.assertEqual(quote.json()["discount_total"], "0.00")
-        self.assertEqual(quote.json()["items"][0]["pizza"], "Orange Drink")
+        self.assertEqual(quote.json()["items"][0]["pizza"], "Loaded Fries")
         self.assertNotIn("size", quote.json()["items"][0])
 
         created = self.post_json("/api/orders/", self.payload)
@@ -242,6 +242,68 @@ class OrderingApiTests(TestCase):
         self.assertEqual(order_item.unit_price, Decimal("7.50"))
         self.assertEqual(order_item.quantity, 2)
         self.assertEqual(order.total, Decimal("15.00"))
+
+    def test_drink_sizes_are_exposed_and_priced_by_the_server(self):
+        item = MenuItem.objects.create(
+            slug="coca-cola",
+            name="Coca-Cola",
+            category=Category.objects.get(slug="drinks"),
+            description="Chilled Coca-Cola.",
+            image="coca-cola.jpg",
+            price=Decimal("7.50"),
+        )
+
+        catalog = self.client.get("/api/pizzas/").json()
+        catalog_item = next(
+            menu_item
+            for menu_item in catalog["menu_items"]
+            if menu_item["slug"] == item.slug
+        )
+        self.assertEqual(
+            catalog_item["sizes"],
+            [
+                {"name": "Small", "volume": "300ml", "price": "10.00"},
+                {"name": "Medium", "volume": "500ml", "price": "15.00"},
+                {"name": "Large", "volume": "1L", "price": "20.00"},
+            ],
+        )
+
+        self.payload["items"] = [
+            {
+                "menuItemSlug": item.slug,
+                "quantity": 2,
+                "size": "Medium",
+                "unitPrice": 0,
+            }
+        ]
+        quote = self.post_json(
+            "/api/orders/quote/",
+            {"items": self.payload["items"]},
+        )
+        self.assertEqual(quote.status_code, 200)
+        self.assertEqual(quote.json()["items"][0]["size"], "Medium")
+        self.assertEqual(quote.json()["items"][0]["unit_price"], "15.00")
+        self.assertEqual(quote.json()["subtotal"], "30.00")
+
+        created = self.post_json("/api/orders/", self.payload)
+        self.assertEqual(created.status_code, 201)
+        order_item = Order.objects.get(reference=created.json()["reference"]).items.get()
+        self.assertEqual(order_item.unit_price, Decimal("15.00"))
+        self.assertEqual(order_item.options, {"size": "Medium"})
+
+        invalid_size = self.post_json(
+            "/api/orders/quote/",
+            {
+                "items": [
+                    {
+                        "menuItemSlug": item.slug,
+                        "quantity": 1,
+                        "size": "Extra Large",
+                    }
+                ]
+            },
+        )
+        self.assertEqual(invalid_size.status_code, 400)
 
     def test_django_admin_can_create_a_loaded_fries_menu_item(self):
         category = Category.objects.get(slug="loaded-fries")

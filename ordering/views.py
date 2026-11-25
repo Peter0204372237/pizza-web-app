@@ -32,6 +32,11 @@ CRUST_SURCHARGES = {
     "Stuffed crust": Decimal("5.00"),
     "Gluten-free": Decimal("5.00"),
 }
+DRINK_SIZE_PRICES = {
+    "Small": ("300ml", Decimal("10.00")),
+    "Medium": ("500ml", Decimal("15.00")),
+    "Large": ("1L", Decimal("20.00")),
+}
 EXTRA_TOPPINGS = {
     "Extra mozzarella",
     "Mushrooms",
@@ -83,7 +88,7 @@ def serialize_pizza(pizza):
 
 
 def serialize_menu_item(item):
-    return {
+    serialized = {
         "slug": item.slug,
         "name": item.name,
         "category": item.category.name,
@@ -92,6 +97,12 @@ def serialize_menu_item(item):
         "image": static_asset_url(item.image),
         "price": str(item.price),
     }
+    if item.category.slug == "drinks":
+        serialized["sizes"] = [
+            {"name": name, "volume": volume, "price": str(price)}
+            for name, (volume, price) in DRINK_SIZE_PRICES.items()
+        ]
+    return serialized
 
 
 def serialize_deal(deal):
@@ -231,7 +242,7 @@ def prepare_item(raw_item):
     if menu_item_slug is not None:
         if not isinstance(menu_item_slug, str) or not menu_item_slug:
             raise ValueError("Choose a valid menu item.")
-        menu_item = MenuItem.objects.filter(
+        menu_item = MenuItem.objects.select_related("category").filter(
             slug=menu_item_slug,
             is_active=True,
         ).first()
@@ -239,12 +250,20 @@ def prepare_item(raw_item):
             raise ValueError("A menu item in your cart is no longer available.")
         if menu_item.price < 0:
             raise ValueError("This menu item has an invalid price and cannot be ordered.")
+        options = {}
+        unit_price = menu_item.price
+        if menu_item.category.slug == "drinks":
+            size = raw_item.get("size", "Small")
+            if not isinstance(size, str) or size not in DRINK_SIZE_PRICES:
+                raise ValueError("Choose a valid drink size.")
+            unit_price = DRINK_SIZE_PRICES[size][1]
+            options["size"] = size
         return {
             "pizza": None,
             "menu_item": menu_item,
             "quantity": quantity,
-            "unit_price": menu_item.price,
-            "options": {},
+            "unit_price": unit_price,
+            "options": options,
         }
 
     slug = raw_item.get("slug")

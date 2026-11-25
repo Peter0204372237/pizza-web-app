@@ -53,10 +53,16 @@
         try {
             const items = window.PizzaCart.getItems();
             grid.querySelectorAll(".pizza-choice").forEach(function (choice) {
+                const card = choice.closest(".menu-card");
+                const selectedSize = card.classList.contains("menu-card--drink")
+                    ? card.querySelector(".menu-size-select").value
+                    : null;
                 choice.checked = items.some(function (item) {
                     if (choice.dataset.productType === "menu-item") {
                         return item.productType === "menu_item" &&
-                            item.menuItemSlug === choice.dataset.slug;
+                            item.menuItemSlug === choice.dataset.slug &&
+                            (selectedSize === null ||
+                                (item.size || "Small") === selectedSize);
                     }
                     return isQuickAdd(item, choice.dataset.slug);
                 });
@@ -147,10 +153,13 @@
         const image = card.querySelector(".menu-media img");
         const choice = card.querySelector(".pizza-choice");
         const choiceLabel = card.querySelector(".pizza-choice-button");
+        const sizeControl = card.querySelector(".menu-size-control");
+        const sizeSelect = card.querySelector(".menu-size-select");
 
         link.remove();
         card.dataset.cat = item.category_slug;
         card.dataset.sourceCat = item.category_slug;
+        card.dataset.menuItemSlug = item.slug;
         card.dataset.search = [
             item.name,
             item.category,
@@ -169,7 +178,21 @@
         });
         card.querySelector("h3").textContent = item.name;
         card.querySelector(".menu-body > p").textContent = item.description;
-        card.querySelector(".menu-price").textContent = money(item.price);
+        if (item.category_slug === "drinks") {
+            card.classList.add("menu-card--drink");
+            sizeControl.hidden = false;
+            sizeSelect.setAttribute("aria-label", item.name + " size");
+            item.sizes.forEach(function (size) {
+                const option = document.createElement("option");
+                option.value = size.name;
+                option.textContent = size.name + " (" + size.volume + ") — " + money(size.price);
+                sizeSelect.append(option);
+            });
+        }
+        const defaultSize = item.sizes && item.sizes[0];
+        card.querySelector(".menu-price").textContent = money(
+            defaultSize ? defaultSize.price : item.price
+        );
         choice.id = "choose-menu-item-" + item.slug;
         choice.dataset.slug = item.slug;
         choice.dataset.productType = "menu-item";
@@ -267,7 +290,16 @@
                 typeof item.description !== "string" ||
                 typeof item.image !== "string" ||
                 !Number.isFinite(Number(item.price)) ||
-                Number(item.price) < 0;
+                Number(item.price) < 0 ||
+                (item.category_slug === "drinks" &&
+                    (!Array.isArray(item.sizes) || item.sizes.length !== 3 ||
+                        item.sizes.some(function (size) {
+                            return !size ||
+                                typeof size.name !== "string" ||
+                                typeof size.volume !== "string" ||
+                                !Number.isFinite(Number(size.price)) ||
+                                Number(size.price) < 0;
+                        })));
         })) {
             throw new Error("The menu data from the server is invalid.");
         }
@@ -318,6 +350,25 @@
     }
 
     grid.addEventListener("change", function (event) {
+        const sizeSelect = event.target.closest(".menu-size-select");
+        if (sizeSelect) {
+            const card = sizeSelect.closest(".menu-card");
+            const item = menuItems.find(function (menuItem) {
+                return menuItem.slug === card.dataset.menuItemSlug;
+            });
+            const selectedSize = item && item.sizes.find(function (size) {
+                return size.name === sizeSelect.value;
+            });
+            if (!selectedSize) {
+                feedback.textContent = "That drink size is unavailable. Refresh the menu and try again.";
+                feedback.classList.add("cart-error");
+                return;
+            }
+            card.querySelector(".menu-price").textContent = money(selectedSize.price);
+            refreshChoices();
+            return;
+        }
+
         const choice = event.target.closest(".pizza-choice");
         if (!choice) {
             return;
@@ -334,26 +385,42 @@
             }
 
             try {
+                const sizeSelect = choice.closest(".menu-card")
+                    .querySelector(".menu-size-select");
+                const selectedSize = item.sizes && sizeSelect
+                    ? item.sizes.find(function (size) {
+                        return size.name === sizeSelect.value;
+                    })
+                    : null;
                 if (choice.checked) {
-                    window.PizzaCart.add({
+                    const cartItem = {
                         productType: "menu_item",
                         menuItemSlug: item.slug,
                         pizza: item.name,
                         image: item.image,
                         quantity: 1,
-                        unitPrice: Number(item.price)
-                    });
-                    feedback.textContent = item.name + " added to your cart.";
+                        unitPrice: Number(selectedSize ? selectedSize.price : item.price)
+                    };
+                    if (selectedSize) {
+                        cartItem.size = selectedSize.name;
+                    }
+                    window.PizzaCart.add(cartItem);
+                    feedback.textContent = item.name +
+                        (selectedSize ? " (" + selectedSize.name + ")" : "") +
+                        " added to your cart.";
                 } else {
                     const items = window.PizzaCart.getItems();
                     const index = items.findIndex(function (cartItem) {
                         return cartItem.productType === "menu_item" &&
-                            cartItem.menuItemSlug === item.slug;
+                            cartItem.menuItemSlug === item.slug &&
+                            (!selectedSize || (cartItem.size || "Small") === selectedSize.name);
                     });
                     if (index !== -1) {
                         window.PizzaCart.remove(index);
                     }
-                    feedback.textContent = item.name + " removed from your cart.";
+                    feedback.textContent = item.name +
+                        (selectedSize ? " (" + selectedSize.name + ")" : "") +
+                        " removed from your cart.";
                 }
                 feedback.classList.remove("cart-error");
             } catch (error) {

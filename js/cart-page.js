@@ -91,12 +91,17 @@
 
             const info = document.createElement("div");
             info.className = "cart-item-info";
+            const itemName = item.productType === "menu_item" && item.size
+                ? item.pizza + " (" + item.size + ")"
+                : item.pizza;
             const title = document.createElement("h2");
-            title.textContent = item.pizza;
+            title.textContent = itemName;
             info.append(title);
 
             const options = [];
-            if (item.size) options.push(item.size + " size");
+            if (item.size && item.productType !== "menu_item") {
+                options.push(item.size + " size");
+            }
             if (item.dough) options.push(item.dough + " dough");
             if (item.crust) options.push(item.crust);
             if (item.extraToppings && item.extraToppings.length) options.push("Extra: " + item.extraToppings.join(", "));
@@ -121,7 +126,7 @@
             quantity.max = "99";
             quantity.step = "1";
             quantity.value = String(item.quantity);
-            quantity.setAttribute("aria-label", "Quantity for " + item.pizza);
+            quantity.setAttribute("aria-label", "Quantity for " + itemName);
             quantity.dataset.cartQuantity = String(index);
             quantityLabel.htmlFor = quantity.id;
             const quantityControl = document.createElement("div");
@@ -132,7 +137,7 @@
             decrease.className = "cart-quantity-step";
             decrease.dataset.cartIndex = String(index);
             decrease.dataset.cartQuantityStep = "-1";
-            decrease.setAttribute("aria-label", "Decrease quantity for " + item.pizza);
+            decrease.setAttribute("aria-label", "Decrease quantity for " + itemName);
             decrease.disabled = item.quantity <= 1;
             decrease.textContent = "−";
 
@@ -141,7 +146,7 @@
             increase.className = "cart-quantity-step";
             increase.dataset.cartIndex = String(index);
             increase.dataset.cartQuantityStep = "1";
-            increase.setAttribute("aria-label", "Increase quantity for " + item.pizza);
+            increase.setAttribute("aria-label", "Increase quantity for " + itemName);
             increase.disabled = item.quantity >= 99;
             increase.textContent = "+";
 
@@ -160,7 +165,7 @@
             remove.className = "cart-remove";
             remove.dataset.cartRemove = String(index);
             remove.textContent = "Remove";
-            remove.setAttribute("aria-label", "Remove " + item.pizza + " from your cart");
+            remove.setAttribute("aria-label", "Remove " + itemName + " from your cart");
             controls.append(quantityField, priceGroup, remove);
             row.append(controls);
             list.append(row);

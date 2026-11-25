@@ -82,7 +82,8 @@
             quote.items.forEach(function (item) {
                 const row = document.createElement("li");
                 const title = document.createElement("span");
-                title.textContent = item.quantity + " × " + item.pizza + " (" + item.size + ")";
+                title.textContent = item.quantity + " × " + item.pizza +
+                    (item.size ? " (" + item.size + ")" : "");
                 const price = document.createElement("strong");
                 price.textContent = money(Number(item.line_total));
                 row.append(title, price);
